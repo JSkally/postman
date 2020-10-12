@@ -6700,6 +6700,3628 @@
 					],
 					"protocolProfileBehavior": {},
 					"_postman_isSubFolder": true
+				},
+				{
+					"name": "pm4mlsenderfsp",
+					"item": [
+						{
+							"name": "account",
+							"item": [
+								{
+									"name": "Add pm4mlsenderfsp",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "52187449-90d5-4b7c-acf1-5ce0653300ca",
+												"exec": [
+													"pm.test(\"Status code is 201\", function () {",
+													"    pm.response.to.have.status(201);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											},
+											{
+												"key": "FSPIOP-Source",
+												"type": "text",
+												"value": "{{hub_operator}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\"name\": \"pm4mlsenderfsp\",\"currency\": \"{{pm4mlcurrency}}\"}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Add initial position and limits - pm4mlsenderfsp",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "c7f4a50d-0b97-45b6-98ae-a06797730167",
+												"exec": [
+													"pm.test(\"Status code is 201\", function () {",
+													"    pm.response.to.have.status(201);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											},
+											{
+												"key": "FSPIOP-Source",
+												"type": "text",
+												"value": "{{hub_operator}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"currency\": \"{{pm4mlcurrency}}\",\n\t\"limit\": {\n\t  \"type\": \"NET_DEBIT_CAP\",\n\t  \"value\": 10000\n\t},\n\t\"initialPosition\": 0\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/{{pm4mlsenderfsp}}/initialPositionAndLimits",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"{{pm4mlsenderfsp}}",
+												"initialPositionAndLimits"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Deposit Funds in Settlement Account - pm4mlsenderfsp",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"id": "75cac488-fc8f-4359-bc29-df82782fc9df",
+												"exec": [
+													"var uuid = require('uuid');",
+													"var generatedUUID = uuid.v4();",
+													"pm.environment.set('fundsInPrepareTransferId', generatedUUID);",
+													"pm.environment.set('fundsInPrepareAmount', 5000);",
+													"",
+													"",
+													"const hubGetStatusRequest = {",
+													"  url: pm.environment.get(\"HOST_CENTRAL_LEDGER\")+pm.environment.get(\"BASE_CENTRAL_LEDGER_ADMIN\")+'/participants/payerfsp/accounts',",
+													"  method: 'GET',",
+													"  header: {",
+													"      \"Authorization\":\"Bearer \"+pm.environment.get(\"HUB_OPERATOR_BEARER_TOKEN\"),",
+													"      \"FSPIOP-Source\": pm.environment.get(\"hub_operator\"),",
+													"      \"Content-Type\": \"application/json\"",
+													"  }",
+													"};",
+													"pm.sendRequest(hubGetStatusRequest, function (err, response) {",
+													"    console.log(response.json())",
+													"    var jsonData = response.json()",
+													"    for(var i in jsonData) {",
+													"        if(jsonData[i].ledgerAccountType === 'SETTLEMENT') {",
+													"            pm.environment.set(\"payerfspSettlementAccountId\",jsonData[i].id)",
+													"        }",
+													"    }",
+													"});",
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"id": "2d9f99fe-d67c-400c-bccd-105dc12ff068",
+												"exec": [
+													"pm.test(\"Status code is 202\", function () {",
+													"    pm.response.to.have.status(202);",
+													"});",
+													"",
+													"setTimeout(function () {",
+													"    const pm4mlsenderfspGetStatusRequest = {",
+													"      url: pm.environment.get(\"HOST_CENTRAL_LEDGER\")+pm.environment.get(\"BASE_CENTRAL_LEDGER_ADMIN\")+'/participants/'+pm.environment.get(\"pm4mlsenderfsp\")+'/accounts',",
+													"      method: 'GET',",
+													"      header: {",
+													"          \"Authorization\":\"Bearer \"+pm.environment.get(\"HUB_OPERATOR_BEARER_TOKEN\"),",
+													"          \"FSPIOP-Source\": pm.environment.get(\"hub_operator\"),",
+													"          \"Content-Type\": \"application/json\"",
+													"      }",
+													"    };",
+													"    pm.sendRequest(pm4mlsenderfspGetStatusRequest, function (err, response) {",
+													"        console.log(response.json())",
+													"        var jsonData = response.json()",
+													"        var pm4mlsenderfspSettlementAccountBalanceAfterFundsIn",
+													"        for(var i in jsonData) {",
+													"            if(jsonData[i].ledgerAccountType === 'SETTLEMENT') {",
+													"                pm4mlsenderfspSettlementAccountBalanceAfterFundsIn = jsonData[i].value",
+													"            }",
+													"        }",
+													"        var pm4mlsenderfspExpectedBalance = pm.environment.get('pm4mlsenderfspSettlementAccountBalanceBeforeFundsIn') + pm.environment.get('fundsInPrepareAmount')",
+													"        pm.test(\"Final pm4mlsenderfsp Settlement Account Balance should be same as before FundsIn + fundsInPrepareAmount\", function () {",
+													"            pm.expect(pm4mlsenderfspSettlementAccountBalanceAfterFundsIn).to.eql(pm4mlsenderfspExpectedBalance);",
+													"          });    ",
+													"    ",
+													"    });",
+													"    ",
+													"    const hubGetStatusRequest = {",
+													"      url: pm.environment.get(\"HOST_CENTRAL_LEDGER\")+pm.environment.get(\"BASE_CENTRAL_LEDGER_ADMIN\")+'/participants/Hub/accounts',",
+													"      method: 'GET',",
+													"      header: {",
+													"          \"Authorization\":\"Bearer \"+pm.environment.get(\"HUB_OPERATOR_BEARER_TOKEN\"),",
+													"          \"FSPIOP-Source\": pm.environment.get(\"hub_operator\"),",
+													"          \"Content-Type\": \"application/json\"",
+													"      }",
+													"    };",
+													"    pm.sendRequest(hubGetStatusRequest, function (err, response) {",
+													"        console.log(response.json())",
+													"        var jsonData = response.json()",
+													"        var currentHubReconAccountBalance",
+													"        for(var i in jsonData) {",
+													"            if(jsonData[i].ledgerAccountType === 'HUB_RECONCILIATION') {",
+													"                hubReconAccountBalanceAfterFundsIn = jsonData[i].value",
+													"            }",
+													"        }",
+													"        var hubExpectedBalance = pm.environment.get(\"hubReconAccountBalanceBeforeFundsIn\")",
+													"        console.log(hubExpectedBalance)",
+													"        pm.test(\"Final Hub Reconciliation Account Balance should be same as before FundsIn\", function () {",
+													"            pm.expect(hubReconAccountBalanceAfterFundsIn).to.eql(hubExpectedBalance);",
+													"          });  ",
+													"    });",
+													"}, 2000)"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "FSPIOP-Source",
+												"type": "text",
+												"value": "{{hub_operator}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"transferId\": \"{{fundsInPrepareTransferId}}\",\n  \"externalReference\": \"string\",\n  \"action\": \"recordFundsIn\",\n  \"reason\": \"string\",\n  \"amount\": {\n    \"amount\": {{fundsInPrepareAmount}},\n    \"currency\": \"{{pm4mlcurrency}}\"\n  },\n  \"extensionList\": {\n    \"extension\": [\n      {\n        \"key\": \"string\",\n        \"value\": \"string\"\n      }\n    ]\n  }\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/{{pm4mlsenderfsp}}/accounts/{{pm4mlsenderfspSettlementAccountId}}",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"{{pm4mlsenderfsp}}",
+												"accounts",
+												"{{pm4mlsenderfspSettlementAccountId}}"
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						},
+						{
+							"name": " callbacks",
+							"item": [
+								{
+									"name": "Add pm4mlsenderfsp callback - AUTHORIZATIONS",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "9526203c-417a-4666-9651-e8683bebb7b0",
+												"exec": [
+													"pm.test(\"Status code is 201\", function () {",
+													"    pm.response.to.have.status(201);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_AUTHORIZATIONS\",\n  \"value\": \"{{PM4MLSENDERFSP_CALLBACK_URL}}\"\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlsenderfsp/endpoints",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"pm4mlsenderfsp",
+												"endpoints"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Add pm4mlsenderfsp callback - PARTICIPANT PUT",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "85139b60-66b4-4e23-bcc3-a6c16109f12a",
+												"exec": [
+													"pm.test(\"Status code is 201\", function () {",
+													"    pm.response.to.have.status(201);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											},
+											{
+												"key": "FSPIOP-Source",
+												"type": "text",
+												"value": "hub_operator"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTICIPANT_PUT\",\n  \"value\": \"{{PM4MLSENDERFSP_CALLBACK_URL}}/participants/{{partyIdType}}/{{partyIdentifier}}\"\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlsenderfsp/endpoints",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"pm4mlsenderfsp",
+												"endpoints"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Add pm4mlsenderfsp callback - PARTICIPANT PUT Error",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "f0c30a34-3414-4e90-96a8-1d7a4dac5819",
+												"exec": [
+													"pm.test(\"Status code is 201\", function () {",
+													"    pm.response.to.have.status(201);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTICIPANT_PUT_ERROR\",\n  \"value\": \"{{PM4MLSENDERFSP_CALLBACK_URL}}/participants/{{partyIdType}}/{{partyIdentifier}}/error\"\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlsenderfsp/endpoints",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"pm4mlsenderfsp",
+												"endpoints"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Add pm4mlsenderfsp callback - PARTICIPANT PUT Batch",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "5c103c6a-166c-4bf9-953e-7b13700c6d8b",
+												"exec": [
+													"pm.test(\"Status code is 201\", function () {",
+													"    pm.response.to.have.status(201);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTICIPANT_BATCH_PUT\",\n  \"value\": \"{{PM4MLSENDERFSP_CALLBACK_URL}}/participants/{{requestId}}\"\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlsenderfsp/endpoints",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"pm4mlsenderfsp",
+												"endpoints"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Add pm4mlsenderfsp callback - PARTICIPANT PUT Batch Error",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "d6102223-968c-445c-bfc1-8338d0bee21c",
+												"exec": [
+													"pm.test(\"Status code is 201\", function () {",
+													"    pm.response.to.have.status(201);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTICIPANT_BATCH_PUT_ERROR\",\n  \"value\": \"{{PM4MLSENDERFSP_CALLBACK_URL}}/participants/{{requestId}}/error\"\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlsenderfsp/endpoints",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"pm4mlsenderfsp",
+												"endpoints"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Add pm4mlsenderfsp callback - PARTIES GET",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "1cab156d-0d42-4fa5-bfec-7d3e838a5d23",
+												"exec": [
+													"pm.test(\"Status code is 201\", function () {",
+													"    pm.response.to.have.status(201);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTIES_GET\",\n  \"value\": \"{{PM4MLSENDERFSP_CALLBACK_URL}}/parties/{{partyIdType}}/{{partyIdentifier}}\"\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlsenderfsp/endpoints",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"pm4mlsenderfsp",
+												"endpoints"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Add pm4mlsenderfsp callback - PARTIES PUT",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "15f00385-1b6f-42c9-9274-d4375ef61922",
+												"exec": [
+													"pm.test(\"Status code is 201\", function () {",
+													"    pm.response.to.have.status(201);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTIES_PUT\",\n  \"value\": \"{{PM4MLSENDERFSP_CALLBACK_URL}}/parties/{{partyIdType}}/{{partyIdentifier}}\"\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlsenderfsp/endpoints",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"pm4mlsenderfsp",
+												"endpoints"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Add pm4mlsenderfsp callback - PARTIES PUT Error",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "2d92afcc-8de0-4fe6-bdb1-7d9aee939060",
+												"exec": [
+													"pm.test(\"Status code is 201\", function () {",
+													"    pm.response.to.have.status(201);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTIES_PUT_ERROR\",\n  \"value\": \"{{PM4MLSENDERFSP_CALLBACK_URL}}/parties/{{partyIdType}}/{{partyIdentifier}}/error\"\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlsenderfsp/endpoints",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"pm4mlsenderfsp",
+												"endpoints"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Add pm4mlsenderfsp callback - QUOTES",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "50eec335-3829-4b3d-af36-2e0b9cf3775d",
+												"exec": [
+													"pm.test(\"Status code is 201\", function () {",
+													"    pm.response.to.have.status(201);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											},
+											{
+												"key": "FSPIOP-Source",
+												"type": "text",
+												"value": "{{hub_operator}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_QUOTES\",\n  \"value\": \"{{PM4MLSENDERFSP_CALLBACK_URL}}\"\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlsenderfsp/endpoints",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"pm4mlsenderfsp",
+												"endpoints"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Add pm4mlsenderfsp callback - TXN REQUEST",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "529dea97-4111-4fbe-98e2-2ebac2ac4c54",
+												"exec": [
+													"pm.test(\"Status code is 201\", function () {",
+													"    pm.response.to.have.status(201);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											},
+											{
+												"key": "FSPIOP-Source",
+												"type": "text",
+												"value": "{{hub_operator}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_TRX_REQ_SERVICE\",\n  \"value\": \"{{PM4MLSENDERFSP_CALLBACK_URL}}\"\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlsenderfsp/endpoints",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"pm4mlsenderfsp",
+												"endpoints"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Add pm4mlsenderfsp callback - TRANSFER POST",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "79413c71-9a63-42cf-a835-4eaf54090d97",
+												"exec": [
+													"pm.test(\"Status code is 201\", function () {",
+													"    pm.response.to.have.status(201);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											},
+											{
+												"key": "FSPIOP-Source",
+												"type": "text",
+												"value": "{{hub_operator}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_TRANSFER_POST\",\n  \"value\": \"{{PM4MLSENDERFSP_CALLBACK_URL}}/transfers\"\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlsenderfsp/endpoints",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"pm4mlsenderfsp",
+												"endpoints"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Add pm4mlsenderfsp callback - TRANSFER PUT",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "1d2bc8a5-a349-4a7b-856d-49a651ee4787",
+												"exec": [
+													"pm.test(\"Status code is 201\", function () {",
+													"    pm.response.to.have.status(201);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											},
+											{
+												"key": "FSPIOP-Source",
+												"type": "text",
+												"value": "{{hub_operator}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_TRANSFER_PUT\",\n  \"value\": \"{{PM4MLSENDERFSP_CALLBACK_URL}}/transfers/{{transferId}}\"\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlsenderfsp/endpoints",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"pm4mlsenderfsp",
+												"endpoints"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Add pm4mlsenderfsp callback - TRANSFER ERROR",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "1bbb6692-c22b-488b-94e9-84e3e3fd9f15",
+												"exec": [
+													"pm.test(\"Status code is 201\", function () {",
+													"    pm.response.to.have.status(201);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											},
+											{
+												"key": "FSPIOP-Source",
+												"type": "text",
+												"value": "hub_operator"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_TRANSFER_ERROR\",\n  \"value\": \"{{PM4MLSENDERFSP_CALLBACK_URL}}/transfers/{{transferId}}/error\"\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlsenderfsp/endpoints",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"pm4mlsenderfsp",
+												"endpoints"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Add pm4mlsenderfsp callback - BULK-TRANSFER POST",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "8ee72c93-d6a5-499b-b3d7-712fb38ce1ca",
+												"exec": [
+													"pm.test(\"Status code is 201\", function () {",
+													"    pm.response.to.have.status(201);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											},
+											{
+												"key": "FSPIOP-Source",
+												"type": "text",
+												"value": "{{hub_operator}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_BULK_TRANSFER_POST\",\n  \"value\": \"{{PM4MLSENDERFSP_CALLBACK_URL}}/bulkTransfers\"\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlsenderfsp/endpoints",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"pm4mlsenderfsp",
+												"endpoints"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Add pm4mlsenderfsp callback - BULK-TRANSFER PUT",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "7eefb772-eeb9-4334-9649-93b7c1d34c37",
+												"exec": [
+													"pm.test(\"Status code is 201\", function () {",
+													"    pm.response.to.have.status(201);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											},
+											{
+												"key": "FSPIOP-Source",
+												"type": "text",
+												"value": "{{hub_operator}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_BULK_TRANSFER_PUT\",\n  \"value\": \"{{PM4MLSENDERFSP_CALLBACK_URL}}/bulkTransfers/{{id}}\"\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlsenderfsp/endpoints",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"pm4mlsenderfsp",
+												"endpoints"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Add pm4mlsenderfsp callback - BULK-TRANSFER ERROR",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "b2a12418-09ef-4bfc-bc03-238ebf8a2d59",
+												"exec": [
+													"pm.test(\"Status code is 201\", function () {",
+													"    pm.response.to.have.status(201);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											},
+											{
+												"key": "FSPIOP-Source",
+												"type": "text",
+												"value": "hub_operator"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_BULK_TRANSFER_ERROR\",\n  \"value\": \"{{PM4MLSENDERFSP_CALLBACK_URL}}/bulkTransfers/{{id}}/error\"\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlsenderfsp/endpoints",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"pm4mlsenderfsp",
+												"endpoints"
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						},
+						{
+							"name": "notification_emails",
+							"item": [
+								{
+									"name": "Set Email-NET_DEBIT_CAP_THRESHOLD_BREACH_EMAIL",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Cache-Control",
+												"value": "no-cache"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "FSPIOP-Source",
+												"value": "pm4mlsenderfsp",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"type\": \"NET_DEBIT_CAP_THRESHOLD_BREACH_EMAIL\",\n  \"value\": \"{{PM4MLSENDERFSP_EMAIL}}\"\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlsenderfsp/endpoints",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"pm4mlsenderfsp",
+												"endpoints"
+											]
+										},
+										"description": "Generated from a curl request: \ncurl -i -X POST     http://test-central-ledger.mojaloop.test/admin/participants/testfsp2/initialPositionAndLimits     -H 'Cache-Control: no-cache'     -H 'Content-Type: application/json'     -d '{\n    \\\"currency\\\": \\\"XOF\\\",\n    \\\"limit\\\": {\n      \\\"type\\\": \\\"NET_DEBIT_CAP\\\",\n      \\\"value\\\": 1000\n    },\n    \\\"initialPosition\\\": 0\n  }'"
+									},
+									"response": [
+										{
+											"name": "2. Create Initial Position and Limits",
+											"originalRequest": {
+												"method": "POST",
+												"header": [
+													{
+														"key": "Cache-Control",
+														"value": "no-cache"
+													},
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n    \"currency\": \"XOF\",\n    \"limit\": {\n      \"type\": \"NET_DEBIT_CAP\",\n      \"value\": 1000\n    },\n    \"initialPosition\": 0\n  }"
+												},
+												"url": {
+													"raw": "http://test-central-ledger.mojaloop.live/admin/participants/testfsp/initialPositionAndLimits",
+													"protocol": "http",
+													"host": [
+														"test-central-ledger",
+														"mojaloop",
+														"live"
+													],
+													"path": [
+														"admin",
+														"participants",
+														"testfsp",
+														"initialPositionAndLimits"
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "Text",
+											"header": [],
+											"cookie": [],
+											"body": ""
+										}
+									]
+								},
+								{
+									"name": "Set Email-NET_DEBIT_CAP_ADJUSTMENT_EMAIL",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Cache-Control",
+												"value": "no-cache"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "FSPIOP-Source",
+												"value": "{{hub_operator}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"type\": \"NET_DEBIT_CAP_ADJUSTMENT_EMAIL\",\n  \"value\": \"{{PM4MLSENDERFSP_EMAIL}}\"\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlsenderfsp/endpoints",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"pm4mlsenderfsp",
+												"endpoints"
+											]
+										},
+										"description": "Generated from a curl request: \ncurl -i -X POST     http://test-central-ledger.mojaloop.test/admin/participants/testfsp2/initialPositionAndLimits     -H 'Cache-Control: no-cache'     -H 'Content-Type: application/json'     -d '{\n    \\\"currency\\\": \\\"XOF\\\",\n    \\\"limit\\\": {\n      \\\"type\\\": \\\"NET_DEBIT_CAP\\\",\n      \\\"value\\\": 1000\n    },\n    \\\"initialPosition\\\": 0\n  }'"
+									},
+									"response": [
+										{
+											"name": "2. Create Initial Position and Limits",
+											"originalRequest": {
+												"method": "POST",
+												"header": [
+													{
+														"key": "Cache-Control",
+														"value": "no-cache"
+													},
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n    \"currency\": \"XOF\",\n    \"limit\": {\n      \"type\": \"NET_DEBIT_CAP\",\n      \"value\": 1000\n    },\n    \"initialPosition\": 0\n  }"
+												},
+												"url": {
+													"raw": "http://test-central-ledger.mojaloop.live/admin/participants/testfsp/initialPositionAndLimits",
+													"protocol": "http",
+													"host": [
+														"test-central-ledger",
+														"mojaloop",
+														"live"
+													],
+													"path": [
+														"admin",
+														"participants",
+														"testfsp",
+														"initialPositionAndLimits"
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "Text",
+											"header": [],
+											"cookie": [],
+											"body": ""
+										}
+									]
+								},
+								{
+									"name": "Set Email-SETTLEMENT_TRANSFER_POSITION_CHANGE_EMAIL",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Cache-Control",
+												"value": "no-cache"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "FSPIOP-Source",
+												"value": "pm4mlsenderfsp",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"type\": \"SETTLEMENT_TRANSFER_POSITION_CHANGE_EMAIL\",\n  \"value\": \"{{PM4MLSENDERFSP_EMAIL}}\"\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlsenderfsp/endpoints",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"pm4mlsenderfsp",
+												"endpoints"
+											]
+										},
+										"description": "Generated from a curl request: \ncurl -i -X POST     http://test-central-ledger.mojaloop.test/admin/participants/testfsp2/initialPositionAndLimits     -H 'Cache-Control: no-cache'     -H 'Content-Type: application/json'     -d '{\n    \\\"currency\\\": \\\"XOF\\\",\n    \\\"limit\\\": {\n      \\\"type\\\": \\\"NET_DEBIT_CAP\\\",\n      \\\"value\\\": 1000\n    },\n    \\\"initialPosition\\\": 0\n  }'"
+									},
+									"response": [
+										{
+											"name": "2. Create Initial Position and Limits",
+											"originalRequest": {
+												"method": "POST",
+												"header": [
+													{
+														"key": "Cache-Control",
+														"value": "no-cache"
+													},
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n    \"currency\": \"XOF\",\n    \"limit\": {\n      \"type\": \"NET_DEBIT_CAP\",\n      \"value\": 1000\n    },\n    \"initialPosition\": 0\n  }"
+												},
+												"url": {
+													"raw": "http://test-central-ledger.mojaloop.live/admin/participants/testfsp/initialPositionAndLimits",
+													"protocol": "http",
+													"host": [
+														"test-central-ledger",
+														"mojaloop",
+														"live"
+													],
+													"path": [
+														"admin",
+														"participants",
+														"testfsp",
+														"initialPositionAndLimits"
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "Text",
+											"header": [],
+											"cookie": [],
+											"body": ""
+										}
+									]
+								}
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						},
+						{
+							"name": "oracle_registration",
+							"item": [
+								{
+									"name": "Add {{payerfspMSISDN}} in MSISDN Oracle",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/vnd.interoperability.participants+json;version=1"
+											},
+											{
+												"key": "Connection",
+												"value": "keep-alive"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/vnd.interoperability.participants+json;version=1.0"
+											},
+											{
+												"key": "Date",
+												"value": ""
+											},
+											{
+												"key": "FSPIOP-Source",
+												"value": "hub_operator"
+											},
+											{
+												"key": "Postman-Token",
+												"value": "7aa4c9f3-1738-49f0-8904-7821e2336692,4127ff87-7d17-483c-8e3e-f0b562a16d84"
+											},
+											{
+												"key": "User-Agent",
+												"value": "PostmanRuntime/7.11.0"
+											},
+											{
+												"key": "accept-encoding",
+												"value": "gzip, deflate"
+											},
+											{
+												"key": "cache-control",
+												"value": "no-cache"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"fspId\": \"pm4mlsenderfsp\",\n    \"currency\": \"{{pm4mlcurrency}}\"\n}"
+										},
+										"url": {
+											"raw": "{{MSISDN_ORACLE_ENDPOINT}}/participants/MSISDN/{{pm4mlsenderfspMSISDN}}",
+											"host": [
+												"{{MSISDN_ORACLE_ENDPOINT}}"
+											],
+											"path": [
+												"participants",
+												"MSISDN",
+												"{{pm4mlsenderfspMSISDN}}"
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						},
+						{
+							"name": "add_users",
+							"item": [
+								{
+									"name": "Add {{payerfspMSISDN}} to payerfsp",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"id": "223feb67-3865-4f54-8dce-d5c459effc07",
+												"exec": [
+													"pm.environment.set('fullName', 'SimFirst SimLast');",
+													"pm.environment.set('firstName', 'SimFirst');",
+													"pm.environment.set('middleName', 'SimMiddle');",
+													"pm.environment.set('lastName', 'SimLast');",
+													"pm.environment.set('dob', '2010-10-10');"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"id": "cd612aaa-a7e9-4d3b-b58f-22fe130dfc4c",
+												"exec": [
+													"pm.test(\"Successful POST request\", function () {",
+													"    pm.expect(pm.response.code).to.be.oneOf([204,200, 500]);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "noauth"
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"displayName\": \"{{fullName}}\",\n    \"firstName\": \"{{firstName}}\",\n    \"middleName\": \"{{middleName}}\",\n    \"lastName\": \"{{lastName}}\",\n    \"dateOfBirth\": \"{{dob}}\",\n    \"idType\": \"MSISDN\",\n    \"idValue\": \"{{pm4mlsenderfspMSISDN}}\"\n}"
+										},
+										"url": {
+											"raw": "{{PAYERFSP_BACKEND_TESTAPI_URL}}/repository/parties",
+											"host": [
+												"{{PAYERFSP_BACKEND_TESTAPI_URL}}"
+											],
+											"path": [
+												"repository",
+												"parties"
+											]
+										},
+										"description": "Create a party in payeefsp. So that GET /parties can be successful."
+									},
+									"response": [
+										{
+											"name": "An error occured processing the request",
+											"originalRequest": {
+												"method": "POST",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n    \"displayName\": \"<string>\",\n    \"firstName\": \"<string>\",\n    \"middleName\": \"<string>\",\n    \"lastName\": \"<string>\",\n    \"dateOfBirth\": \"<string>\",\n    \"merchantClassificationCode\": \"<string>\"\n}"
+												},
+												"url": {
+													"raw": "{{baseUrl}}/repository/parties",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"repository",
+														"parties"
+													]
+												}
+											},
+											"status": "Internal Server Error",
+											"code": 500,
+											"_postman_previewlanguage": "Text",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "text/plain"
+												}
+											],
+											"cookie": [],
+											"body": ""
+										},
+										{
+											"name": "The party was created",
+											"originalRequest": {
+												"method": "POST",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n    \"displayName\": \"<string>\",\n    \"firstName\": \"<string>\",\n    \"middleName\": \"<string>\",\n    \"lastName\": \"<string>\",\n    \"dateOfBirth\": \"<string>\",\n    \"merchantClassificationCode\": \"<string>\"\n}"
+												},
+												"url": {
+													"raw": "{{baseUrl}}/repository/parties",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"repository",
+														"parties"
+													]
+												}
+											},
+											"status": "No Content",
+											"code": 204,
+											"_postman_previewlanguage": "Text",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "text/plain"
+												}
+											],
+											"cookie": [],
+											"body": ""
+										}
+									]
+								},
+								{
+									"name": "Add SubId User - 27713803920 - 100",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"id": "ad45fab1-b6b7-4775-8684-c9f5a75b522f",
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"id": "e77ecf08-005d-4490-bbf3-fc79689793b8",
+												"exec": [
+													"pm.test(\"Status code is 202\", function () {",
+													"    pm.response.to.have.status(202);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/vnd.interoperability.participants+json;version=1.0"
+											},
+											{
+												"key": "Accept",
+												"value": "application/vnd.interoperability.participants+json;version=1",
+												"type": "text"
+											},
+											{
+												"key": "Date",
+												"value": "{{transferDate}}",
+												"type": "text"
+											},
+											{
+												"key": "FSPIOP-Source",
+												"value": "{{pm4mlsenderfsp}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n \"fspId\": \"{{payerfsp}}\",\n \"currency\": \"XOF\"\n}\n"
+										},
+										"url": {
+											"raw": "{{HOST_ACCOUNT_LOOKUP_SERVICE}}/participants/MSISDN/27713803920/100",
+											"host": [
+												"{{HOST_ACCOUNT_LOOKUP_SERVICE}}"
+											],
+											"path": [
+												"participants",
+												"MSISDN",
+												"27713803920",
+												"100"
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "pm4mlreceiverfsp",
+					"item": [
+						{
+							"name": "accounts",
+							"item": [
+								{
+									"name": "Add pm4mlreceiverfsp",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "f72579d5-9abb-4cf7-aa60-6aa530e2c2d0",
+												"exec": [
+													"pm.test(\"Status code is 201\", function () {",
+													"    pm.response.to.have.status(201);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											},
+											{
+												"key": "FSPIOP-Source",
+												"type": "text",
+												"value": "{{hub_operator}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\"name\": \"pm4mlreceiverfsp\",\"currency\": \"{{pm4mlcurrency}}\"}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Add initial position and limits - pm4mlreceiverfsp",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "d52d388a-d4b3-41d5-befe-c6ab7edd47ec",
+												"exec": [
+													"pm.test(\"Status code is 201\", function () {",
+													"    pm.response.to.have.status(201);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											},
+											{
+												"key": "FSPIOP-Source",
+												"type": "text",
+												"value": "{{hub_operator}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"currency\": \"{{pm4mlcurrency}}\",\n\t\"limit\": {\n\t  \"type\": \"NET_DEBIT_CAP\",\n\t  \"value\": 10000\n\t},\n\t\"initialPosition\": 0\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlreceiverfsp/initialPositionAndLimits",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"pm4mlreceiverfsp",
+												"initialPositionAndLimits"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Deposit Funds - pm4mlreceiverfsp",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"id": "61b8838e-b6fe-4b02-8c4b-63d94794d4be",
+												"exec": [
+													"var uuid = require('uuid');",
+													"var generatedUUID = uuid.v4();",
+													"pm.environment.set('fundsInPrepareTransferId', generatedUUID);",
+													"pm.environment.set('fundsInPrepareAmount', 5000);",
+													"",
+													"",
+													"const hubGetStatusRequest = {",
+													"  url: pm.environment.get(\"HOST_CENTRAL_LEDGER\")+pm.environment.get(\"BASE_CENTRAL_LEDGER_ADMIN\")+'/participants/payeefsp/accounts',",
+													"  method: 'GET',",
+													"  header: {",
+													"      \"Authorization\":\"Bearer \"+pm.environment.get(\"HUB_OPERATOR_BEARER_TOKEN\"),",
+													"      \"FSPIOP-Source\": pm.environment.get(\"hub_operator\"),",
+													"      \"Content-Type\": \"application/json\"",
+													"  }",
+													"};",
+													"pm.sendRequest(hubGetStatusRequest, function (err, response) {",
+													"    console.log(response.json())",
+													"    var jsonData = response.json()",
+													"    for(var i in jsonData) {",
+													"        if(jsonData[i].ledgerAccountType === 'SETTLEMENT') {",
+													"            pm.environment.set(\"payeefspSettlementAccountId\",jsonData[i].id)",
+													"        }",
+													"    }",
+													"});",
+													"",
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"id": "b8219ddd-e785-4dba-a22a-7ebfea74982c",
+												"exec": [
+													"pm.test(\"Status code is 202\", function () {",
+													"    pm.response.to.have.status(202);",
+													"});",
+													"",
+													"setTimeout(function () {",
+													"    const pm4mlreceiverfspGetStatusRequest = {",
+													"      url: pm.environment.get(\"HOST_CENTRAL_LEDGER\")+pm.environment.get(\"BASE_CENTRAL_LEDGER_ADMIN\")+'/participants/'+pm.environment.get(\"pm4mlreceiverfsp\")+'/accounts',",
+													"      method: 'GET',",
+													"      header: {",
+													"          \"Authorization\":\"Bearer \"+pm.environment.get(\"HUB_OPERATOR_BEARER_TOKEN\"),",
+													"          \"FSPIOP-Source\": pm.environment.get(\"hub_operator\"),",
+													"          \"Content-Type\": \"application/json\"",
+													"      }",
+													"    };",
+													"    pm.sendRequest(pm4mlreceiverfspGetStatusRequest, function (err, response) {",
+													"        console.log(response.json())",
+													"        var jsonData = response.json()",
+													"        var pm4mlreceiverfspSettlementAccountBalanceAfterFundsIn",
+													"        for(var i in jsonData) {",
+													"            if(jsonData[i].ledgerAccountType === 'SETTLEMENT') {",
+													"                pm4mlreceiverfspSettlementAccountBalanceAfterFundsIn = jsonData[i].value",
+													"            }",
+													"        }",
+													"        var pm4mlreceiverfspExpectedBalance = pm.environment.get('pm4mlreceiverfspSettlementAccountBalanceBeforeFundsIn') + pm.environment.get('fundsInPrepareAmount')",
+													"        pm.test(\"Final pm4mlreceiverfsp Settlement Account Balance should be same as before FundsIn + fundsInPrepareAmount\", function () {",
+													"            pm.expect(pm4mlreceiverfspSettlementAccountBalanceAfterFundsIn).to.eql(pm4mlreceiverfspExpectedBalance);",
+													"          });    ",
+													"    ",
+													"    });",
+													"    ",
+													"    const hubGetStatusRequest = {",
+													"      url: pm.environment.get(\"HOST_CENTRAL_LEDGER\")+pm.environment.get(\"BASE_CENTRAL_LEDGER_ADMIN\")+'/participants/Hub/accounts',",
+													"      method: 'GET',",
+													"      header: {",
+													"          \"Authorization\":\"Bearer \"+pm.environment.get(\"HUB_OPERATOR_BEARER_TOKEN\"),",
+													"          \"FSPIOP-Source\": pm.environment.get(\"hub_operator\"),",
+													"          \"Content-Type\": \"application/json\"",
+													"      }",
+													"    };",
+													"    pm.sendRequest(hubGetStatusRequest, function (err, response) {",
+													"        console.log(response.json())",
+													"        var jsonData = response.json()",
+													"        var currentHubReconAccountBalance",
+													"        for(var i in jsonData) {",
+													"            if(jsonData[i].ledgerAccountType === 'HUB_RECONCILIATION') {",
+													"                hubReconAccountBalanceAfterFundsIn = jsonData[i].value",
+													"            }",
+													"        }",
+													"        var hubExpectedBalance = pm.environment.get(\"hubReconAccountBalanceBeforeFundsIn\")",
+													"        console.log(hubExpectedBalance)",
+													"        pm.test(\"Final Hub Reconciliation Account Balance should be same as before FundsIn\", function () {",
+													"            pm.expect(hubReconAccountBalanceAfterFundsIn).to.eql(hubExpectedBalance);",
+													"          });  ",
+													"    });",
+													"}, 2000)"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "FSPIOP-Source",
+												"type": "text",
+												"value": "{{hub_operator}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"transferId\": \"{{fundsInPrepareTransferId}}\",\n  \"externalReference\": \"string\",\n  \"action\": \"recordFundsIn\",\n  \"reason\": \"string\",\n  \"amount\": {\n    \"amount\": {{fundsInPrepareAmount}},\n    \"currency\": \"{{pm4mlcurrency}}\"\n  },\n  \"extensionList\": {\n    \"extension\": [\n      {\n        \"key\": \"string\",\n        \"value\": \"string\"\n      }\n    ]\n  }\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/{{pm4mlreceiverfsp}}/accounts/{{payeefspSettlementAccountId}}",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"{{pm4mlreceiverfsp}}",
+												"accounts",
+												"{{payeefspSettlementAccountId}}"
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"description": "##Author: Sridevi Miriyala##",
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						},
+						{
+							"name": "callbacks",
+							"item": [
+								{
+									"name": "Add pm4mlreceiverfsp callback - AUTHORIZATIONS",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "b66e1f31-8c83-4638-aa43-b97971f5d0b1",
+												"exec": [
+													"pm.test(\"Status code is 201\", function () {",
+													"    pm.response.to.have.status(201);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_AUTHORIZATIONS\",\n  \"value\": \"{{PM4MLRECEIVERFSP_CALLBACK_URL}}\"\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlreceiverfsp/endpoints",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"pm4mlreceiverfsp",
+												"endpoints"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Add pm4mlreceiverfsp callback - PARTICIPANT PUT",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "1b4e490c-10ba-45a0-88fd-11eb7943cf17",
+												"exec": [
+													"pm.test(\"Status code is 201\", function () {",
+													"    pm.response.to.have.status(201);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											},
+											{
+												"key": "FSPIOP-Source",
+												"type": "text",
+												"value": "hub_operator"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTICIPANT_PUT\",\n  \"value\": \"{{PM4MLRECEIVERFSP_CALLBACK_URL}}/participants/{{partyIdType}}/{{partyIdentifier}}\"\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlreceiverfsp/endpoints",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"pm4mlreceiverfsp",
+												"endpoints"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Add pm4mlreceiverfsp callback - PARTICIPANT PUT Error",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "1f2880da-532b-49fc-bb86-216af61ba104",
+												"exec": [
+													"pm.test(\"Status code is 201\", function () {",
+													"    pm.response.to.have.status(201);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTICIPANT_PUT_ERROR\",\n  \"value\": \"{{PM4MLRECEIVERFSP_CALLBACK_URL}}/participants/{{partyIdType}}/{{partyIdentifier}}/error\"\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlreceiverfsp/endpoints",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"pm4mlreceiverfsp",
+												"endpoints"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Add pm4mlreceiverfsp callback - PARTICIPANT PUT Batch",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "1fe1d645-ee88-4eba-b1a6-18f4205fc1f7",
+												"exec": [
+													"pm.test(\"Status code is 201\", function () {",
+													"    pm.response.to.have.status(201);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTICIPANT_BATCH_PUT\",\n  \"value\": \"{{PM4MLRECEIVERFSP_CALLBACK_URL}}/participants/{{requestId}}\"\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlreceiverfsp/endpoints",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"pm4mlreceiverfsp",
+												"endpoints"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Add pm4mlreceiverfsp callback - PARTICIPANT PUT Batch Error",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "20990278-0800-4b05-b434-05792777f9ba",
+												"exec": [
+													"pm.test(\"Status code is 201\", function () {",
+													"    pm.response.to.have.status(201);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTICIPANT_BATCH_PUT_ERROR\",\n  \"value\": \"{{PM4MLRECEIVERFSP_CALLBACK_URL}}/participants/{{requestId}}/error\"\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlreceiverfsp/endpoints",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"pm4mlreceiverfsp",
+												"endpoints"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Add pm4mlreceiverfsp callback - PARTIES GET",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "a2a82f8d-444f-422a-9561-4d4e30f316c7",
+												"exec": [
+													"pm.test(\"Status code is 201\", function () {",
+													"    pm.response.to.have.status(201);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTIES_GET\",\n  \"value\": \"{{PM4MLRECEIVERFSP_CALLBACK_URL}}/parties/{{partyIdType}}/{{partyIdentifier}}\"\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlreceiverfsp/endpoints",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"pm4mlreceiverfsp",
+												"endpoints"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Add pm4mlreceiverfsp callback - PARTIES PUT",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "12558e41-b4fd-4ea1-8add-6a302451813f",
+												"exec": [
+													"pm.test(\"Status code is 201\", function () {",
+													"    pm.response.to.have.status(201);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTIES_PUT\",\n  \"value\": \"{{PM4MLRECEIVERFSP_CALLBACK_URL}}/parties/{{partyIdType}}/{{partyIdentifier}}\"\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlreceiverfsp/endpoints",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"pm4mlreceiverfsp",
+												"endpoints"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Add pm4mlreceiverfsp callback - PARTIES PUT Error",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "0bdbb84c-3e23-4c63-8a03-c6f55e6f52cc",
+												"exec": [
+													"pm.test(\"Status code is 201\", function () {",
+													"    pm.response.to.have.status(201);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTIES_PUT_ERROR\",\n  \"value\": \"{{PM4MLRECEIVERFSP_CALLBACK_URL}}/parties/{{partyIdType}}/{{partyIdentifier}}/error\"\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlreceiverfsp/endpoints",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"pm4mlreceiverfsp",
+												"endpoints"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Add pm4mlreceiverfsp callback - QUOTES",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "a192c2d7-8698-477a-9b41-3f263edc6b49",
+												"exec": [
+													"pm.test(\"Status code is 201\", function () {",
+													"    pm.response.to.have.status(201);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											},
+											{
+												"key": "FSPIOP-Source",
+												"type": "text",
+												"value": "{{hub_operator}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_QUOTES\",\n  \"value\": \"{{PM4MLRECEIVERFSP_CALLBACK_URL}}\"\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlreceiverfsp/endpoints",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"pm4mlreceiverfsp",
+												"endpoints"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Add pm4mlreceiverfsp callback - TXN REQUEST",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "5f92e608-3f1b-4c46-b9de-c625da66984e",
+												"exec": [
+													"pm.test(\"Status code is 201\", function () {",
+													"    pm.response.to.have.status(201);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											},
+											{
+												"key": "FSPIOP-Source",
+												"type": "text",
+												"value": "{{hub_operator}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_TRX_REQ_SERVICE\",\n  \"value\": \"{{PM4MLRECEIVERFSP_CALLBACK_URL}}\"\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlreceiverfsp/endpoints",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"pm4mlreceiverfsp",
+												"endpoints"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Add pm4mlreceiverfsp callback - TRANSFER POST",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "245984fd-999a-4ef4-939e-2be3ffcad949",
+												"exec": [
+													"pm.test(\"Status code is 201\", function () {",
+													"    pm.response.to.have.status(201);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											},
+											{
+												"key": "FSPIOP-Source",
+												"type": "text",
+												"value": "{{hub_operator}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_TRANSFER_POST\",\n  \"value\": \"{{PM4MLRECEIVERFSP_CALLBACK_URL}}/transfers\"\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlreceiverfsp/endpoints",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"pm4mlreceiverfsp",
+												"endpoints"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Add pm4mlreceiverfsp callback - TRANSFER PUT",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "7092936f-2f72-49ea-b091-0f58fb043a93",
+												"exec": [
+													"pm.test(\"Status code is 201\", function () {",
+													"    pm.response.to.have.status(201);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											},
+											{
+												"key": "FSPIOP-Source",
+												"type": "text",
+												"value": "{{payerfsp}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_TRANSFER_PUT\",\n  \"value\": \"{{PM4MLRECEIVERFSP_CALLBACK_URL}}/transfers/{{transferId}}\"\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlreceiverfsp/endpoints",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"pm4mlreceiverfsp",
+												"endpoints"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Add pm4mlreceiverfsp callback - TRANSFER ERROR",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "0f440511-5a73-4f76-8af9-52c191af9973",
+												"exec": [
+													"pm.test(\"Status code is 201\", function () {",
+													"    pm.response.to.have.status(201);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											},
+											{
+												"key": "FSPIOP-Source",
+												"type": "text",
+												"value": "payerfsp"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_TRANSFER_ERROR\",\n  \"value\": \"{{PM4MLRECEIVERFSP_CALLBACK_URL}}/transfers/{{transferId}}/error\"\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlreceiverfsp/endpoints",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"pm4mlreceiverfsp",
+												"endpoints"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Add pm4mlreceiverfsp callback - BULK-TRANSFER POST",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "7c53f9ac-482e-4e63-ae20-24d3a6f5f555",
+												"exec": [
+													"pm.test(\"Status code is 201\", function () {",
+													"    pm.response.to.have.status(201);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											},
+											{
+												"key": "FSPIOP-Source",
+												"type": "text",
+												"value": "{{hub_operator}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_BULK_TRANSFER_POST\",\n  \"value\": \"{{PM4MLRECEIVERFSP_CALLBACK_URL}}/bulkTransfers\"\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlreceiverfsp/endpoints",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"pm4mlreceiverfsp",
+												"endpoints"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Add pm4mlreceiverfsp callback - BULK-TRANSFER PUT",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "9e66effa-e7ba-42b2-bece-9d09f67a50e9",
+												"exec": [
+													"pm.test(\"Status code is 201\", function () {",
+													"    pm.response.to.have.status(201);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											},
+											{
+												"key": "FSPIOP-Source",
+												"value": "{{payerfsp}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_BULK_TRANSFER_PUT\",\n  \"value\": \"{{PM4MLRECEIVERFSP_CALLBACK_URL}}/bulkTransfers/{{id}}\"\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlreceiverfsp/endpoints",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"pm4mlreceiverfsp",
+												"endpoints"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Add pm4mlreceiverfsp callback - BULK-TRANSFER ERROR",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "f3e6c91b-2be3-4a07-ac43-fed5ee009e3a",
+												"exec": [
+													"pm.test(\"Status code is 201\", function () {",
+													"    pm.response.to.have.status(201);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											},
+											{
+												"key": "FSPIOP-Source",
+												"value": "payerfsp",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_BULK_TRANSFER_ERROR\",\n  \"value\": \"{{PM4MLRECEIVERFSP_CALLBACK_URL}}/bulkTransfers/{{id}}/error\"\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlreceiverfsp/endpoints",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"pm4mlreceiverfsp",
+												"endpoints"
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						},
+						{
+							"name": "notification_emails",
+							"item": [
+								{
+									"name": "Set Email-NET_DEBIT_CAP_THRESHOLD_BREACH_EMAIL",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Cache-Control",
+												"value": "no-cache"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "FSPIOP-Source",
+												"type": "text",
+												"value": "{{hub_operator}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"type\": \"NET_DEBIT_CAP_THRESHOLD_BREACH_EMAIL\",\n  \"value\": \"{{PM4MLRECEIVERFSP_EMAIL}}\"\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlreceiverfsp/endpoints",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"pm4mlreceiverfsp",
+												"endpoints"
+											]
+										},
+										"description": "Generated from a curl request: \ncurl -i -X POST     http://test-central-ledger.mojaloop.test/admin/participants/testfsp2/initialPositionAndLimits     -H 'Cache-Control: no-cache'     -H 'Content-Type: application/json'     -d '{\n    \\\"currency\\\": \\\"XOF\\\",\n    \\\"limit\\\": {\n      \\\"type\\\": \\\"NET_DEBIT_CAP\\\",\n      \\\"value\\\": 1000\n    },\n    \\\"initialPosition\\\": 0\n  }'"
+									},
+									"response": [
+										{
+											"name": "2. Create Initial Position and Limits",
+											"originalRequest": {
+												"method": "POST",
+												"header": [
+													{
+														"key": "Cache-Control",
+														"value": "no-cache"
+													},
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n    \"currency\": \"XOF\",\n    \"limit\": {\n      \"type\": \"NET_DEBIT_CAP\",\n      \"value\": 1000\n    },\n    \"initialPosition\": 0\n  }"
+												},
+												"url": {
+													"raw": "http://test-central-ledger.mojaloop.live/admin/participants/testfsp/initialPositionAndLimits",
+													"protocol": "http",
+													"host": [
+														"test-central-ledger",
+														"mojaloop",
+														"live"
+													],
+													"path": [
+														"admin",
+														"participants",
+														"testfsp",
+														"initialPositionAndLimits"
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "Text",
+											"header": [],
+											"cookie": [],
+											"body": ""
+										}
+									]
+								},
+								{
+									"name": "Set Email-NET_DEBIT_CAP_ADJUSTMENT_EMAIL",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Cache-Control",
+												"value": "no-cache"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "FSPIOP-Source",
+												"type": "text",
+												"value": "{{hub_operator}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"type\": \"NET_DEBIT_CAP_ADJUSTMENT_EMAIL\",\n  \"value\": \"{{PM4MLRECEIVERFSP_EMAIL}}\"\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlreceiverfsp/endpoints",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"pm4mlreceiverfsp",
+												"endpoints"
+											]
+										},
+										"description": "Generated from a curl request: \ncurl -i -X POST     http://test-central-ledger.mojaloop.test/admin/participants/testfsp2/initialPositionAndLimits     -H 'Cache-Control: no-cache'     -H 'Content-Type: application/json'     -d '{\n    \\\"currency\\\": \\\"XOF\\\",\n    \\\"limit\\\": {\n      \\\"type\\\": \\\"NET_DEBIT_CAP\\\",\n      \\\"value\\\": 1000\n    },\n    \\\"initialPosition\\\": 0\n  }'"
+									},
+									"response": [
+										{
+											"name": "2. Create Initial Position and Limits",
+											"originalRequest": {
+												"method": "POST",
+												"header": [
+													{
+														"key": "Cache-Control",
+														"value": "no-cache"
+													},
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n    \"currency\": \"XOF\",\n    \"limit\": {\n      \"type\": \"NET_DEBIT_CAP\",\n      \"value\": 1000\n    },\n    \"initialPosition\": 0\n  }"
+												},
+												"url": {
+													"raw": "http://test-central-ledger.mojaloop.live/admin/participants/testfsp/initialPositionAndLimits",
+													"protocol": "http",
+													"host": [
+														"test-central-ledger",
+														"mojaloop",
+														"live"
+													],
+													"path": [
+														"admin",
+														"participants",
+														"testfsp",
+														"initialPositionAndLimits"
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "Text",
+											"header": [],
+											"cookie": [],
+											"body": ""
+										}
+									]
+								},
+								{
+									"name": "Set Email-SETTLEMENT_TRANSFER_POSITION_CHANGE_EMAIL",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Cache-Control",
+												"value": "no-cache"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "FSPIOP-Source",
+												"type": "text",
+												"value": "{{hub_operator}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"type\": \"SETTLEMENT_TRANSFER_POSITION_CHANGE_EMAIL\",\n  \"value\": \"{{PM4MLRECEIVERFSP_EMAIL}}\"\n}"
+										},
+										"url": {
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlreceiverfsp/endpoints",
+											"host": [
+												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
+											],
+											"path": [
+												"participants",
+												"pm4mlreceiverfsp",
+												"endpoints"
+											]
+										},
+										"description": "Generated from a curl request: \ncurl -i -X POST     http://test-central-ledger.mojaloop.test/admin/participants/testfsp2/initialPositionAndLimits     -H 'Cache-Control: no-cache'     -H 'Content-Type: application/json'     -d '{\n    \\\"currency\\\": \\\"XOF\\\",\n    \\\"limit\\\": {\n      \\\"type\\\": \\\"NET_DEBIT_CAP\\\",\n      \\\"value\\\": 1000\n    },\n    \\\"initialPosition\\\": 0\n  }'"
+									},
+									"response": [
+										{
+											"name": "2. Create Initial Position and Limits",
+											"originalRequest": {
+												"method": "POST",
+												"header": [
+													{
+														"key": "Cache-Control",
+														"value": "no-cache"
+													},
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n    \"currency\": \"XOF\",\n    \"limit\": {\n      \"type\": \"NET_DEBIT_CAP\",\n      \"value\": 1000\n    },\n    \"initialPosition\": 0\n  }"
+												},
+												"url": {
+													"raw": "http://test-central-ledger.mojaloop.live/admin/participants/testfsp/initialPositionAndLimits",
+													"protocol": "http",
+													"host": [
+														"test-central-ledger",
+														"mojaloop",
+														"live"
+													],
+													"path": [
+														"admin",
+														"participants",
+														"testfsp",
+														"initialPositionAndLimits"
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "Text",
+											"header": [],
+											"cookie": [],
+											"body": ""
+										}
+									]
+								}
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						},
+						{
+							"name": "oracle_registration",
+							"item": [
+								{
+									"name": "Add {{payeefspMSISDN}} in MSISDN Oracle",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{HUB_OPERATOR_BEARER_TOKEN}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/vnd.interoperability.participants+json;version=1"
+											},
+											{
+												"key": "Connection",
+												"value": "keep-alive"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/vnd.interoperability.participants+json;version=1.0"
+											},
+											{
+												"key": "Date",
+												"value": ""
+											},
+											{
+												"key": "FSPIOP-Source",
+												"value": "hub_operator"
+											},
+											{
+												"key": "Postman-Token",
+												"value": "7aa4c9f3-1738-49f0-8904-7821e2336692,4127ff87-7d17-483c-8e3e-f0b562a16d84"
+											},
+											{
+												"key": "User-Agent",
+												"value": "PostmanRuntime/7.11.0"
+											},
+											{
+												"key": "accept-encoding",
+												"value": "gzip, deflate"
+											},
+											{
+												"key": "cache-control",
+												"value": "no-cache"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"fspId\": \"pm4mlreceiverfsp\",\n    \"currency\": \"{{pm4mlcurrency}}\"\n}"
+										},
+										"url": {
+											"raw": "{{MSISDN_ORACLE_ENDPOINT}}/participants/MSISDN/{{pm4mlreceiverfspMSISDN}}",
+											"host": [
+												"{{MSISDN_ORACLE_ENDPOINT}}"
+											],
+											"path": [
+												"participants",
+												"MSISDN",
+												"{{pm4mlreceiverfspMSISDN}}"
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						},
+						{
+							"name": "add_users",
+							"item": [
+								{
+									"name": "Add {{pm4mlreceiverfspMSISDN}} to pm4mlreceiverfsp",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"id": "d779b0be-b7c3-44a1-b068-e3a7d36d6238",
+												"exec": [
+													"pm.environment.set('fullName', 'Pm4mlreceiverFirst PayeeLast');",
+													"pm.environment.set('firstName', 'Pm4mlreceiverFirst');",
+													"pm.environment.set('middleName', 'Pm4mlreceiverMiddle');",
+													"pm.environment.set('lastName', 'Pm4mlreceiverLast');",
+													"pm.environment.set('dob', '2010-10-10');"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"id": "dd197a00-0409-45be-894c-855e7d09e182",
+												"exec": [
+													"pm.test(\"Successful POST request\", function () {",
+													"    pm.expect(pm.response.code).to.be.oneOf([204,200, 500]);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "noauth"
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"displayName\": \"{{fullName}}\",\n    \"firstName\": \"{{firstName}}\",\n    \"middleName\": \"{{middleName}}\",\n    \"lastName\": \"{{lastName}}\",\n    \"dateOfBirth\": \"{{dob}}\",\n    \"idType\": \"MSISDN\",\n    \"idValue\": \"{{pm4mlreceiverfspMSISDN}}\"\n}"
+										},
+										"url": {
+											"raw": "{{PAYEEFSP_BACKEND_TESTAPI_URL}}/repository/parties",
+											"host": [
+												"{{PAYEEFSP_BACKEND_TESTAPI_URL}}"
+											],
+											"path": [
+												"repository",
+												"parties"
+											]
+										},
+										"description": "Create a party in payeefsp. So that GET /parties can be successful."
+									},
+									"response": [
+										{
+											"name": "The party was created",
+											"originalRequest": {
+												"method": "POST",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n    \"displayName\": \"<string>\",\n    \"firstName\": \"<string>\",\n    \"middleName\": \"<string>\",\n    \"lastName\": \"<string>\",\n    \"dateOfBirth\": \"<string>\",\n    \"merchantClassificationCode\": \"<string>\"\n}"
+												},
+												"url": {
+													"raw": "{{baseUrl}}/repository/parties",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"repository",
+														"parties"
+													]
+												}
+											},
+											"status": "No Content",
+											"code": 204,
+											"_postman_previewlanguage": "Text",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "text/plain"
+												}
+											],
+											"cookie": [],
+											"body": ""
+										},
+										{
+											"name": "An error occured processing the request",
+											"originalRequest": {
+												"method": "POST",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n    \"displayName\": \"<string>\",\n    \"firstName\": \"<string>\",\n    \"middleName\": \"<string>\",\n    \"lastName\": \"<string>\",\n    \"dateOfBirth\": \"<string>\",\n    \"merchantClassificationCode\": \"<string>\"\n}"
+												},
+												"url": {
+													"raw": "{{baseUrl}}/repository/parties",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"repository",
+														"parties"
+													]
+												}
+											},
+											"status": "Internal Server Error",
+											"code": 500,
+											"_postman_previewlanguage": "Text",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "text/plain"
+												}
+											],
+											"cookie": [],
+											"body": ""
+										}
+									]
+								},
+								{
+									"name": "Register {{merchantId}} in BUSINESS Oracle",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/vnd.interoperability.participants+json;version=1"
+											},
+											{
+												"key": "Connection",
+												"value": "keep-alive"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/vnd.interoperability.participants+json;version=1.0"
+											},
+											{
+												"key": "Date",
+												"value": ""
+											},
+											{
+												"key": "FSPIOP-Source",
+												"value": "pm4mlreceiverfsp"
+											},
+											{
+												"key": "Postman-Token",
+												"value": "7aa4c9f3-1738-49f0-8904-7821e2336692,4127ff87-7d17-483c-8e3e-f0b562a16d84"
+											},
+											{
+												"key": "User-Agent",
+												"value": "PostmanRuntime/7.11.0"
+											},
+											{
+												"key": "accept-encoding",
+												"value": "gzip, deflate"
+											},
+											{
+												"key": "cache-control",
+												"value": "no-cache"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"fspId\": \"pm4mlreceiverfsp\",\n    \"currency\": \"{{pm4mlcurrency}}\"\n}"
+										},
+										"url": {
+											"raw": "{{MERCHANT_ORACLE_ENDPOINT}}/participants/BUSINESS/{{merchantId}}",
+											"host": [
+												"{{MERCHANT_ORACLE_ENDPOINT}}"
+											],
+											"path": [
+												"participants",
+												"BUSINESS",
+												"{{merchantId}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Register {{aliasId}} in ALIAS Oracle",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/vnd.interoperability.participants+json;version=1"
+											},
+											{
+												"key": "Connection",
+												"value": "keep-alive"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/vnd.interoperability.participants+json;version=1.0"
+											},
+											{
+												"key": "Date",
+												"value": ""
+											},
+											{
+												"key": "FSPIOP-Source",
+												"value": "pm4mlreceiverfsp"
+											},
+											{
+												"key": "Postman-Token",
+												"value": "7aa4c9f3-1738-49f0-8904-7821e2336692,4127ff87-7d17-483c-8e3e-f0b562a16d84"
+											},
+											{
+												"key": "User-Agent",
+												"value": "PostmanRuntime/7.11.0"
+											},
+											{
+												"key": "accept-encoding",
+												"value": "gzip, deflate"
+											},
+											{
+												"key": "cache-control",
+												"value": "no-cache"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"fspId\": \"pm4mlreceiverfsp\",\n    \"currency\": \"{{pm4mlcurrency}}\"\n}"
+										},
+										"url": {
+											"raw": "{{ALIAS_ORACLE_ENDPOINT}}/participants/ALIAS/{{aliasID}}",
+											"host": [
+												"{{ALIAS_ORACLE_ENDPOINT}}"
+											],
+											"path": [
+												"participants",
+												"ALIAS",
+												"{{aliasID}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Add SubId User - 27713803921 - 200",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"id": "648a707b-2928-41d6-8bb6-06148bf2236b",
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"id": "135f7c66-dbc0-4e14-93ec-e98d612de27c",
+												"exec": [
+													"pm.test(\"Status code is 202\", function () {",
+													"    pm.response.to.have.status(202);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/vnd.interoperability.participants+json;version=1.0"
+											},
+											{
+												"key": "Accept",
+												"value": "application/vnd.interoperability.participants+json;version=1",
+												"type": "text"
+											},
+											{
+												"key": "Date",
+												"value": "{{transferDate}}",
+												"type": "text"
+											},
+											{
+												"key": "FSPIOP-Source",
+												"value": "{{payeefsp}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n \"fspId\": \"{{payeefsp}}\",\n \"currency\": \"XOF\"\n}\n"
+										},
+										"url": {
+											"raw": "{{HOST_ACCOUNT_LOOKUP_SERVICE}}/participants/MSISDN/27713803921/200",
+											"host": [
+												"{{HOST_ACCOUNT_LOOKUP_SERVICE}}"
+											],
+											"path": [
+												"participants",
+												"MSISDN",
+												"27713803921",
+												"200"
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
 				}
 			],
 			"protocolProfileBehavior": {}
