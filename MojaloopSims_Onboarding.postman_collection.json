@@ -8379,7 +8379,7 @@
 									]
 								},
 								{
-									"name": "Add SubId User - 27713803920 - 100",
+									"name": "Add SubId User - 22365012345 - 100",
 									"event": [
 										{
 											"listen": "prerequest",
@@ -8432,14 +8432,14 @@
 											"raw": "{\n \"fspId\": \"{{pm4mlsenderfsp}}\",\n \"currency\": \"XOF\"\n}\n"
 										},
 										"url": {
-											"raw": "{{HOST_ACCOUNT_LOOKUP_SERVICE}}/participants/MSISDN/27713803920/100",
+											"raw": "{{HOST_ACCOUNT_LOOKUP_SERVICE}}/participants/MSISDN/22365012345/100",
 											"host": [
 												"{{HOST_ACCOUNT_LOOKUP_SERVICE}}"
 											],
 											"path": [
 												"participants",
 												"MSISDN",
-												"27713803920",
+												"22365012345",
 												"100"
 											]
 										}
@@ -10248,7 +10248,7 @@
 									"response": []
 								},
 								{
-									"name": "Add SubId User - 27713803921 - 200",
+									"name": "Add SubId User - 22365012346 - 200",
 									"event": [
 										{
 											"listen": "prerequest",
@@ -10301,14 +10301,14 @@
 											"raw": "{\n \"fspId\": \"{{pm4mlreceiverfsp}}\",\n \"currency\": \"XOF\"\n}\n"
 										},
 										"url": {
-											"raw": "{{HOST_ACCOUNT_LOOKUP_SERVICE}}/participants/MSISDN/27713803921/200",
+											"raw": "{{HOST_ACCOUNT_LOOKUP_SERVICE}}/participants/MSISDN/22365012346/200",
 											"host": [
 												"{{HOST_ACCOUNT_LOOKUP_SERVICE}}"
 											],
 											"path": [
 												"participants",
 												"MSISDN",
-												"27713803921",
+												"22365012346",
 												"200"
 											]
 										}
