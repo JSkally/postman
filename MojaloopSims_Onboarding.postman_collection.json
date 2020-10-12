@@ -6605,16 +6605,16 @@
 											"raw": "{\n    \"displayName\": \"{{fullName}}\",\n    \"firstName\": \"{{firstName}}\",\n    \"middleName\": \"{{middleName}}\",\n    \"lastName\": \"{{lastName}}\",\n    \"dateOfBirth\": \"{{dob}}\",\n    \"idType\": \"MSISDN\",\n    \"idValue\": \"{{testfsp2MSISDN}}\"\n}"
 										},
 										"url": {
-											"raw": "{{PAYEEFSP_BACKEND_TESTAPI_URL}}/repository/parties",
+											"raw": "{{PM4MLRECEIVERFSP_BACKEND_TESTAPI_URL}}/repository/parties",
 											"host": [
-												"{{PAYEEFSP_BACKEND_TESTAPI_URL}}"
+												"{{PM4MLRECEIVERFSP_BACKEND_TESTAPI_URL}}"
 											],
 											"path": [
 												"repository",
 												"parties"
 											]
 										},
-										"description": "Create a party in payeefsp. So that GET /parties can be successful."
+										"description": "Create a party in pm4mlreceiverfsp. So that GET /parties can be successful."
 									},
 									"response": [
 										{
@@ -6838,7 +6838,7 @@
 													"",
 													"",
 													"const hubGetStatusRequest = {",
-													"  url: pm.environment.get(\"HOST_CENTRAL_LEDGER\")+pm.environment.get(\"BASE_CENTRAL_LEDGER_ADMIN\")+'/participants/payerfsp/accounts',",
+													"  url: pm.environment.get(\"HOST_CENTRAL_LEDGER\")+pm.environment.get(\"BASE_CENTRAL_LEDGER_ADMIN\")+'/participants/pm4mlsenderfsp/accounts',",
 													"  method: 'GET',",
 													"  header: {",
 													"      \"Authorization\":\"Bearer \"+pm.environment.get(\"HUB_OPERATOR_BEARER_TOKEN\"),",
@@ -6851,7 +6851,7 @@
 													"    var jsonData = response.json()",
 													"    for(var i in jsonData) {",
 													"        if(jsonData[i].ledgerAccountType === 'SETTLEMENT') {",
-													"            pm.environment.set(\"payerfspSettlementAccountId\",jsonData[i].id)",
+													"            pm.environment.set(\"pm4mlsenderfspSettlementAccountId\",jsonData[i].id)",
 													"        }",
 													"    }",
 													"});",
@@ -8168,7 +8168,7 @@
 							"name": "oracle_registration",
 							"item": [
 								{
-									"name": "Add {{payerfspMSISDN}} in MSISDN Oracle",
+									"name": "Add {{pm4mlsenderfspMSISDN}} in MSISDN Oracle",
 									"request": {
 										"auth": {
 											"type": "bearer",
@@ -8245,7 +8245,7 @@
 							"name": "add_users",
 							"item": [
 								{
-									"name": "Add {{payerfspMSISDN}} to payerfsp",
+									"name": "Add {{pm4mlsenderfspMSISDN}} to pm4mlsenderfsp",
 									"event": [
 										{
 											"listen": "prerequest",
@@ -8290,16 +8290,16 @@
 											"raw": "{\n    \"displayName\": \"{{fullName}}\",\n    \"firstName\": \"{{firstName}}\",\n    \"middleName\": \"{{middleName}}\",\n    \"lastName\": \"{{lastName}}\",\n    \"dateOfBirth\": \"{{dob}}\",\n    \"idType\": \"MSISDN\",\n    \"idValue\": \"{{pm4mlsenderfspMSISDN}}\"\n}"
 										},
 										"url": {
-											"raw": "{{PAYERFSP_BACKEND_TESTAPI_URL}}/repository/parties",
+											"raw": "{{PM4MLSENDERFSP_BACKEND_TESTAPI_URL}}/repository/parties",
 											"host": [
-												"{{PAYERFSP_BACKEND_TESTAPI_URL}}"
+												"{{PM4MLSENDERFSP_BACKEND_TESTAPI_URL}}"
 											],
 											"path": [
 												"repository",
 												"parties"
 											]
 										},
-										"description": "Create a party in payeefsp. So that GET /parties can be successful."
+										"description": "Create a party in pm4mlreceiverfsp. So that GET /parties can be successful."
 									},
 									"response": [
 										{
@@ -8429,7 +8429,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n \"fspId\": \"{{payerfsp}}\",\n \"currency\": \"XOF\"\n}\n"
+											"raw": "{\n \"fspId\": \"{{pm4mlsenderfsp}}\",\n \"currency\": \"XOF\"\n}\n"
 										},
 										"url": {
 											"raw": "{{HOST_ACCOUNT_LOOKUP_SERVICE}}/participants/MSISDN/27713803920/100",
@@ -8591,7 +8591,7 @@
 													"",
 													"",
 													"const hubGetStatusRequest = {",
-													"  url: pm.environment.get(\"HOST_CENTRAL_LEDGER\")+pm.environment.get(\"BASE_CENTRAL_LEDGER_ADMIN\")+'/participants/payeefsp/accounts',",
+													"  url: pm.environment.get(\"HOST_CENTRAL_LEDGER\")+pm.environment.get(\"BASE_CENTRAL_LEDGER_ADMIN\")+'/participants/pm4mlreceiverfsp/accounts',",
 													"  method: 'GET',",
 													"  header: {",
 													"      \"Authorization\":\"Bearer \"+pm.environment.get(\"HUB_OPERATOR_BEARER_TOKEN\"),",
@@ -8604,7 +8604,7 @@
 													"    var jsonData = response.json()",
 													"    for(var i in jsonData) {",
 													"        if(jsonData[i].ledgerAccountType === 'SETTLEMENT') {",
-													"            pm.environment.set(\"payeefspSettlementAccountId\",jsonData[i].id)",
+													"            pm.environment.set(\"pm4mlreceiverfspSettlementAccountId\",jsonData[i].id)",
 													"        }",
 													"    }",
 													"});",
@@ -8707,7 +8707,7 @@
 											"raw": "{\n  \"transferId\": \"{{fundsInPrepareTransferId}}\",\n  \"externalReference\": \"string\",\n  \"action\": \"recordFundsIn\",\n  \"reason\": \"string\",\n  \"amount\": {\n    \"amount\": {{fundsInPrepareAmount}},\n    \"currency\": \"{{pm4mlcurrency}}\"\n  },\n  \"extensionList\": {\n    \"extension\": [\n      {\n        \"key\": \"string\",\n        \"value\": \"string\"\n      }\n    ]\n  }\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/{{pm4mlreceiverfsp}}/accounts/{{payeefspSettlementAccountId}}",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/{{pm4mlreceiverfsp}}/accounts/{{pm4mlreceiverfspSettlementAccountId}}",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
@@ -8715,7 +8715,7 @@
 												"participants",
 												"{{pm4mlreceiverfsp}}",
 												"accounts",
-												"{{payeefspSettlementAccountId}}"
+												"{{pm4mlreceiverfspSettlementAccountId}}"
 											]
 										}
 									},
@@ -9379,7 +9379,7 @@
 											{
 												"key": "FSPIOP-Source",
 												"type": "text",
-												"value": "{{payerfsp}}"
+												"value": "{{pm4mlsenderfsp}}"
 											}
 										],
 										"body": {
@@ -9437,7 +9437,7 @@
 											{
 												"key": "FSPIOP-Source",
 												"type": "text",
-												"value": "payerfsp"
+												"value": "pm4mlsenderfsp"
 											}
 										],
 										"body": {
@@ -9552,7 +9552,7 @@
 											},
 											{
 												"key": "FSPIOP-Source",
-												"value": "{{payerfsp}}",
+												"value": "{{pm4mlsenderfsp}}",
 												"type": "text"
 											}
 										],
@@ -9610,7 +9610,7 @@
 											},
 											{
 												"key": "FSPIOP-Source",
-												"value": "payerfsp",
+												"value": "pm4mlsenderfsp",
 												"type": "text"
 											}
 										],
@@ -9917,7 +9917,7 @@
 							"name": "oracle_registration",
 							"item": [
 								{
-									"name": "Add {{payeefspMSISDN}} in MSISDN Oracle",
+									"name": "Add {{pm4mlreceiverfspMSISDN}} in MSISDN Oracle",
 									"request": {
 										"auth": {
 											"type": "bearer",
@@ -10001,7 +10001,7 @@
 											"script": {
 												"id": "d779b0be-b7c3-44a1-b068-e3a7d36d6238",
 												"exec": [
-													"pm.environment.set('fullName', 'Pm4mlreceiverFirst PayeeLast');",
+													"pm.environment.set('fullName', 'Pm4mlreceiverFirst Pm4mlreceiverLast');",
 													"pm.environment.set('firstName', 'Pm4mlreceiverFirst');",
 													"pm.environment.set('middleName', 'Pm4mlreceiverMiddle');",
 													"pm.environment.set('lastName', 'Pm4mlreceiverLast');",
@@ -10039,16 +10039,16 @@
 											"raw": "{\n    \"displayName\": \"{{fullName}}\",\n    \"firstName\": \"{{firstName}}\",\n    \"middleName\": \"{{middleName}}\",\n    \"lastName\": \"{{lastName}}\",\n    \"dateOfBirth\": \"{{dob}}\",\n    \"idType\": \"MSISDN\",\n    \"idValue\": \"{{pm4mlreceiverfspMSISDN}}\"\n}"
 										},
 										"url": {
-											"raw": "{{PAYEEFSP_BACKEND_TESTAPI_URL}}/repository/parties",
+											"raw": "{{PM4MLRECEIVERFSP_BACKEND_TESTAPI_URL}}/repository/parties",
 											"host": [
-												"{{PAYEEFSP_BACKEND_TESTAPI_URL}}"
+												"{{PM4MLRECEIVERFSP_BACKEND_TESTAPI_URL}}"
 											],
 											"path": [
 												"repository",
 												"parties"
 											]
 										},
-										"description": "Create a party in payeefsp. So that GET /parties can be successful."
+										"description": "Create a party in pm4mlreceiverfsp. So that GET /parties can be successful."
 									},
 									"response": [
 										{
@@ -10292,13 +10292,13 @@
 											},
 											{
 												"key": "FSPIOP-Source",
-												"value": "{{payeefsp}}",
+												"value": "{{pm4mlreceiverfsp}}",
 												"type": "text"
 											}
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n \"fspId\": \"{{payeefsp}}\",\n \"currency\": \"XOF\"\n}\n"
+											"raw": "{\n \"fspId\": \"{{pm4mlreceiverfsp}}\",\n \"currency\": \"XOF\"\n}\n"
 										},
 										"url": {
 											"raw": "{{HOST_ACCOUNT_LOOKUP_SERVICE}}/participants/MSISDN/27713803921/200",
