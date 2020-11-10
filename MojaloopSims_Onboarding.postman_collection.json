@@ -6605,16 +6605,16 @@
 											"raw": "{\n    \"displayName\": \"{{fullName}}\",\n    \"firstName\": \"{{firstName}}\",\n    \"middleName\": \"{{middleName}}\",\n    \"lastName\": \"{{lastName}}\",\n    \"dateOfBirth\": \"{{dob}}\",\n    \"idType\": \"MSISDN\",\n    \"idValue\": \"{{testfsp2MSISDN}}\"\n}"
 										},
 										"url": {
-											"raw": "{{PM4MLRECEIVERFSP_BACKEND_TESTAPI_URL}}/repository/parties",
+											"raw": "{{PM4MLPAYEE_BACKEND_TESTAPI_URL}}/repository/parties",
 											"host": [
-												"{{PM4MLRECEIVERFSP_BACKEND_TESTAPI_URL}}"
+												"{{PM4MLPAYEE_BACKEND_TESTAPI_URL}}"
 											],
 											"path": [
 												"repository",
 												"parties"
 											]
 										},
-										"description": "Create a party in pm4mlreceiverfsp. So that GET /parties can be successful."
+										"description": "Create a party in pm4mlpayee. So that GET /parties can be successful."
 									},
 									"response": [
 										{
@@ -6702,13 +6702,13 @@
 					"_postman_isSubFolder": true
 				},
 				{
-					"name": "pm4mlsenderfsp",
+					"name": "pm4mlpayer",
 					"item": [
 						{
 							"name": "account",
 							"item": [
 								{
-									"name": "Add pm4mlsenderfsp",
+									"name": "Add pm4mlpayer",
 									"event": [
 										{
 											"listen": "test",
@@ -6750,7 +6750,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\"name\": \"pm4mlsenderfsp\",\"currency\": \"{{pm4mlcurrency}}\"}"
+											"raw": "{\"name\": \"pm4mlpayer\",\"currency\": \"{{pm4mlcurrency}}\"}"
 										},
 										"url": {
 											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants",
@@ -6765,7 +6765,7 @@
 									"response": []
 								},
 								{
-									"name": "Add initial position and limits - pm4mlsenderfsp",
+									"name": "Add initial position and limits - pm4mlpayer",
 									"event": [
 										{
 											"listen": "test",
@@ -6810,13 +6810,13 @@
 											"raw": "{\n\t\"currency\": \"{{pm4mlcurrency}}\",\n\t\"limit\": {\n\t  \"type\": \"NET_DEBIT_CAP\",\n\t  \"value\": 10000\n\t},\n\t\"initialPosition\": 0\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/{{pm4mlsenderfsp}}/initialPositionAndLimits",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/{{pm4mlpayer}}/initialPositionAndLimits",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"{{pm4mlsenderfsp}}",
+												"{{pm4mlpayer}}",
 												"initialPositionAndLimits"
 											]
 										}
@@ -6824,7 +6824,7 @@
 									"response": []
 								},
 								{
-									"name": "Deposit Funds in Settlement Account - pm4mlsenderfsp",
+									"name": "Deposit Funds in Settlement Account - pm4mlpayer",
 									"event": [
 										{
 											"listen": "prerequest",
@@ -6838,7 +6838,7 @@
 													"",
 													"",
 													"const hubGetStatusRequest = {",
-													"  url: pm.environment.get(\"HOST_CENTRAL_LEDGER\")+pm.environment.get(\"BASE_CENTRAL_LEDGER_ADMIN\")+'/participants/pm4mlsenderfsp/accounts',",
+													"  url: pm.environment.get(\"HOST_CENTRAL_LEDGER\")+pm.environment.get(\"BASE_CENTRAL_LEDGER_ADMIN\")+'/participants/pm4mlpayer/accounts',",
 													"  method: 'GET',",
 													"  header: {",
 													"      \"Authorization\":\"Bearer \"+pm.environment.get(\"HUB_OPERATOR_BEARER_TOKEN\"),",
@@ -6851,7 +6851,7 @@
 													"    var jsonData = response.json()",
 													"    for(var i in jsonData) {",
 													"        if(jsonData[i].ledgerAccountType === 'SETTLEMENT') {",
-													"            pm.environment.set(\"pm4mlsenderfspSettlementAccountId\",jsonData[i].id)",
+													"            pm.environment.set(\"pm4mlpayerSettlementAccountId\",jsonData[i].id)",
 													"        }",
 													"    }",
 													"});",
@@ -6870,8 +6870,8 @@
 													"});",
 													"",
 													"setTimeout(function () {",
-													"    const pm4mlsenderfspGetStatusRequest = {",
-													"      url: pm.environment.get(\"HOST_CENTRAL_LEDGER\")+pm.environment.get(\"BASE_CENTRAL_LEDGER_ADMIN\")+'/participants/'+pm.environment.get(\"pm4mlsenderfsp\")+'/accounts',",
+													"    const pm4mlpayerGetStatusRequest = {",
+													"      url: pm.environment.get(\"HOST_CENTRAL_LEDGER\")+pm.environment.get(\"BASE_CENTRAL_LEDGER_ADMIN\")+'/participants/'+pm.environment.get(\"pm4mlpayer\")+'/accounts',",
 													"      method: 'GET',",
 													"      header: {",
 													"          \"Authorization\":\"Bearer \"+pm.environment.get(\"HUB_OPERATOR_BEARER_TOKEN\"),",
@@ -6879,18 +6879,18 @@
 													"          \"Content-Type\": \"application/json\"",
 													"      }",
 													"    };",
-													"    pm.sendRequest(pm4mlsenderfspGetStatusRequest, function (err, response) {",
+													"    pm.sendRequest(pm4mlpayerGetStatusRequest, function (err, response) {",
 													"        console.log(response.json())",
 													"        var jsonData = response.json()",
-													"        var pm4mlsenderfspSettlementAccountBalanceAfterFundsIn",
+													"        var pm4mlpayerSettlementAccountBalanceAfterFundsIn",
 													"        for(var i in jsonData) {",
 													"            if(jsonData[i].ledgerAccountType === 'SETTLEMENT') {",
-													"                pm4mlsenderfspSettlementAccountBalanceAfterFundsIn = jsonData[i].value",
+													"                pm4mlpayerSettlementAccountBalanceAfterFundsIn = jsonData[i].value",
 													"            }",
 													"        }",
-													"        var pm4mlsenderfspExpectedBalance = pm.environment.get('pm4mlsenderfspSettlementAccountBalanceBeforeFundsIn') + pm.environment.get('fundsInPrepareAmount')",
-													"        pm.test(\"Final pm4mlsenderfsp Settlement Account Balance should be same as before FundsIn + fundsInPrepareAmount\", function () {",
-													"            pm.expect(pm4mlsenderfspSettlementAccountBalanceAfterFundsIn).to.eql(pm4mlsenderfspExpectedBalance);",
+													"        var pm4mlpayerExpectedBalance = pm.environment.get('pm4mlpayerSettlementAccountBalanceBeforeFundsIn') + pm.environment.get('fundsInPrepareAmount')",
+													"        pm.test(\"Final pm4mlpayer Settlement Account Balance should be same as before FundsIn + fundsInPrepareAmount\", function () {",
+													"            pm.expect(pm4mlpayerSettlementAccountBalanceAfterFundsIn).to.eql(pm4mlpayerExpectedBalance);",
 													"          });    ",
 													"    ",
 													"    });",
@@ -6953,15 +6953,15 @@
 											"raw": "{\n  \"transferId\": \"{{fundsInPrepareTransferId}}\",\n  \"externalReference\": \"string\",\n  \"action\": \"recordFundsIn\",\n  \"reason\": \"string\",\n  \"amount\": {\n    \"amount\": {{fundsInPrepareAmount}},\n    \"currency\": \"{{pm4mlcurrency}}\"\n  },\n  \"extensionList\": {\n    \"extension\": [\n      {\n        \"key\": \"string\",\n        \"value\": \"string\"\n      }\n    ]\n  }\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/{{pm4mlsenderfsp}}/accounts/{{pm4mlsenderfspSettlementAccountId}}",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/{{pm4mlpayer}}/accounts/{{pm4mlpayerSettlementAccountId}}",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"{{pm4mlsenderfsp}}",
+												"{{pm4mlpayer}}",
 												"accounts",
-												"{{pm4mlsenderfspSettlementAccountId}}"
+												"{{pm4mlpayerSettlementAccountId}}"
 											]
 										}
 									},
@@ -6975,7 +6975,7 @@
 							"name": " callbacks",
 							"item": [
 								{
-									"name": "Add pm4mlsenderfsp callback - AUTHORIZATIONS",
+									"name": "Add pm4mlpayer callback - AUTHORIZATIONS",
 									"event": [
 										{
 											"listen": "test",
@@ -7012,16 +7012,16 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_AUTHORIZATIONS\",\n  \"value\": \"{{PM4MLSENDERFSP_CALLBACK_URL}}\"\n}"
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_AUTHORIZATIONS\",\n  \"value\": \"{{PM4MLPAYER_CALLBACK_URL}}\"\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlsenderfsp/endpoints",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlpayer/endpoints",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"pm4mlsenderfsp",
+												"pm4mlpayer",
 												"endpoints"
 											]
 										}
@@ -7029,7 +7029,7 @@
 									"response": []
 								},
 								{
-									"name": "Add pm4mlsenderfsp callback - PARTICIPANT PUT",
+									"name": "Add pm4mlpayer callback - PARTICIPANT PUT",
 									"event": [
 										{
 											"listen": "test",
@@ -7071,16 +7071,16 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTICIPANT_PUT\",\n  \"value\": \"{{PM4MLSENDERFSP_CALLBACK_URL}}/participants/{{partyIdType}}/{{partyIdentifier}}\"\n}"
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTICIPANT_PUT\",\n  \"value\": \"{{PM4MLPAYER_CALLBACK_URL}}/participants/{{partyIdType}}/{{partyIdentifier}}\"\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlsenderfsp/endpoints",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlpayer/endpoints",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"pm4mlsenderfsp",
+												"pm4mlpayer",
 												"endpoints"
 											]
 										}
@@ -7088,7 +7088,7 @@
 									"response": []
 								},
 								{
-									"name": "Add pm4mlsenderfsp callback - PARTICIPANT PUT Error",
+									"name": "Add pm4mlpayer callback - PARTICIPANT PUT Error",
 									"event": [
 										{
 											"listen": "test",
@@ -7125,16 +7125,16 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTICIPANT_PUT_ERROR\",\n  \"value\": \"{{PM4MLSENDERFSP_CALLBACK_URL}}/participants/{{partyIdType}}/{{partyIdentifier}}/error\"\n}"
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTICIPANT_PUT_ERROR\",\n  \"value\": \"{{PM4MLPAYER_CALLBACK_URL}}/participants/{{partyIdType}}/{{partyIdentifier}}/error\"\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlsenderfsp/endpoints",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlpayer/endpoints",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"pm4mlsenderfsp",
+												"pm4mlpayer",
 												"endpoints"
 											]
 										}
@@ -7142,7 +7142,7 @@
 									"response": []
 								},
 								{
-									"name": "Add pm4mlsenderfsp callback - PARTICIPANT PUT Batch",
+									"name": "Add pm4mlpayer callback - PARTICIPANT PUT Batch",
 									"event": [
 										{
 											"listen": "test",
@@ -7179,16 +7179,16 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTICIPANT_BATCH_PUT\",\n  \"value\": \"{{PM4MLSENDERFSP_CALLBACK_URL}}/participants/{{requestId}}\"\n}"
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTICIPANT_BATCH_PUT\",\n  \"value\": \"{{PM4MLPAYER_CALLBACK_URL}}/participants/{{requestId}}\"\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlsenderfsp/endpoints",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlpayer/endpoints",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"pm4mlsenderfsp",
+												"pm4mlpayer",
 												"endpoints"
 											]
 										}
@@ -7196,7 +7196,7 @@
 									"response": []
 								},
 								{
-									"name": "Add pm4mlsenderfsp callback - PARTICIPANT PUT Batch Error",
+									"name": "Add pm4mlpayer callback - PARTICIPANT PUT Batch Error",
 									"event": [
 										{
 											"listen": "test",
@@ -7233,16 +7233,16 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTICIPANT_BATCH_PUT_ERROR\",\n  \"value\": \"{{PM4MLSENDERFSP_CALLBACK_URL}}/participants/{{requestId}}/error\"\n}"
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTICIPANT_BATCH_PUT_ERROR\",\n  \"value\": \"{{PM4MLPAYER_CALLBACK_URL}}/participants/{{requestId}}/error\"\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlsenderfsp/endpoints",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlpayer/endpoints",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"pm4mlsenderfsp",
+												"pm4mlpayer",
 												"endpoints"
 											]
 										}
@@ -7250,7 +7250,7 @@
 									"response": []
 								},
 								{
-									"name": "Add pm4mlsenderfsp callback - PARTIES GET",
+									"name": "Add pm4mlpayer callback - PARTIES GET",
 									"event": [
 										{
 											"listen": "test",
@@ -7287,16 +7287,16 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTIES_GET\",\n  \"value\": \"{{PM4MLSENDERFSP_CALLBACK_URL}}/parties/{{partyIdType}}/{{partyIdentifier}}\"\n}"
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTIES_GET\",\n  \"value\": \"{{PM4MLPAYER_CALLBACK_URL}}/parties/{{partyIdType}}/{{partyIdentifier}}\"\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlsenderfsp/endpoints",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlpayer/endpoints",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"pm4mlsenderfsp",
+												"pm4mlpayer",
 												"endpoints"
 											]
 										}
@@ -7304,7 +7304,7 @@
 									"response": []
 								},
 								{
-									"name": "Add pm4mlsenderfsp callback - PARTIES PUT",
+									"name": "Add pm4mlpayer callback - PARTIES PUT",
 									"event": [
 										{
 											"listen": "test",
@@ -7341,16 +7341,16 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTIES_PUT\",\n  \"value\": \"{{PM4MLSENDERFSP_CALLBACK_URL}}/parties/{{partyIdType}}/{{partyIdentifier}}\"\n}"
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTIES_PUT\",\n  \"value\": \"{{PM4MLPAYER_CALLBACK_URL}}/parties/{{partyIdType}}/{{partyIdentifier}}\"\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlsenderfsp/endpoints",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlpayer/endpoints",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"pm4mlsenderfsp",
+												"pm4mlpayer",
 												"endpoints"
 											]
 										}
@@ -7358,7 +7358,7 @@
 									"response": []
 								},
 								{
-									"name": "Add pm4mlsenderfsp callback - PARTIES PUT Error",
+									"name": "Add pm4mlpayer callback - PARTIES PUT Error",
 									"event": [
 										{
 											"listen": "test",
@@ -7395,16 +7395,16 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTIES_PUT_ERROR\",\n  \"value\": \"{{PM4MLSENDERFSP_CALLBACK_URL}}/parties/{{partyIdType}}/{{partyIdentifier}}/error\"\n}"
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTIES_PUT_ERROR\",\n  \"value\": \"{{PM4MLPAYER_CALLBACK_URL}}/parties/{{partyIdType}}/{{partyIdentifier}}/error\"\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlsenderfsp/endpoints",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlpayer/endpoints",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"pm4mlsenderfsp",
+												"pm4mlpayer",
 												"endpoints"
 											]
 										}
@@ -7412,7 +7412,7 @@
 									"response": []
 								},
 								{
-									"name": "Add pm4mlsenderfsp callback - QUOTES",
+									"name": "Add pm4mlpayer callback - QUOTES",
 									"event": [
 										{
 											"listen": "test",
@@ -7454,16 +7454,16 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_QUOTES\",\n  \"value\": \"{{PM4MLSENDERFSP_CALLBACK_URL}}\"\n}"
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_QUOTES\",\n  \"value\": \"{{PM4MLPAYER_CALLBACK_URL}}\"\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlsenderfsp/endpoints",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlpayer/endpoints",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"pm4mlsenderfsp",
+												"pm4mlpayer",
 												"endpoints"
 											]
 										}
@@ -7471,7 +7471,7 @@
 									"response": []
 								},
 								{
-									"name": "Add pm4mlsenderfsp callback - TXN REQUEST",
+									"name": "Add pm4mlpayer callback - TXN REQUEST",
 									"event": [
 										{
 											"listen": "test",
@@ -7513,16 +7513,16 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_TRX_REQ_SERVICE\",\n  \"value\": \"{{PM4MLSENDERFSP_CALLBACK_URL}}\"\n}"
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_TRX_REQ_SERVICE\",\n  \"value\": \"{{PM4MLPAYER_CALLBACK_URL}}\"\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlsenderfsp/endpoints",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlpayer/endpoints",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"pm4mlsenderfsp",
+												"pm4mlpayer",
 												"endpoints"
 											]
 										}
@@ -7530,7 +7530,7 @@
 									"response": []
 								},
 								{
-									"name": "Add pm4mlsenderfsp callback - TRANSFER POST",
+									"name": "Add pm4mlpayer callback - TRANSFER POST",
 									"event": [
 										{
 											"listen": "test",
@@ -7572,16 +7572,16 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_TRANSFER_POST\",\n  \"value\": \"{{PM4MLSENDERFSP_CALLBACK_URL}}/transfers\"\n}"
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_TRANSFER_POST\",\n  \"value\": \"{{PM4MLPAYER_CALLBACK_URL}}/transfers\"\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlsenderfsp/endpoints",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlpayer/endpoints",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"pm4mlsenderfsp",
+												"pm4mlpayer",
 												"endpoints"
 											]
 										}
@@ -7589,7 +7589,7 @@
 									"response": []
 								},
 								{
-									"name": "Add pm4mlsenderfsp callback - TRANSFER PUT",
+									"name": "Add pm4mlpayer callback - TRANSFER PUT",
 									"event": [
 										{
 											"listen": "test",
@@ -7631,16 +7631,16 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_TRANSFER_PUT\",\n  \"value\": \"{{PM4MLSENDERFSP_CALLBACK_URL}}/transfers/{{transferId}}\"\n}"
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_TRANSFER_PUT\",\n  \"value\": \"{{PM4MLPAYER_CALLBACK_URL}}/transfers/{{transferId}}\"\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlsenderfsp/endpoints",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlpayer/endpoints",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"pm4mlsenderfsp",
+												"pm4mlpayer",
 												"endpoints"
 											]
 										}
@@ -7648,7 +7648,7 @@
 									"response": []
 								},
 								{
-									"name": "Add pm4mlsenderfsp callback - TRANSFER ERROR",
+									"name": "Add pm4mlpayer callback - TRANSFER ERROR",
 									"event": [
 										{
 											"listen": "test",
@@ -7690,16 +7690,16 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_TRANSFER_ERROR\",\n  \"value\": \"{{PM4MLSENDERFSP_CALLBACK_URL}}/transfers/{{transferId}}/error\"\n}"
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_TRANSFER_ERROR\",\n  \"value\": \"{{PM4MLPAYER_CALLBACK_URL}}/transfers/{{transferId}}/error\"\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlsenderfsp/endpoints",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlpayer/endpoints",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"pm4mlsenderfsp",
+												"pm4mlpayer",
 												"endpoints"
 											]
 										}
@@ -7707,7 +7707,7 @@
 									"response": []
 								},
 								{
-									"name": "Add pm4mlsenderfsp callback - BULK-TRANSFER POST",
+									"name": "Add pm4mlpayer callback - BULK-TRANSFER POST",
 									"event": [
 										{
 											"listen": "test",
@@ -7749,16 +7749,16 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_BULK_TRANSFER_POST\",\n  \"value\": \"{{PM4MLSENDERFSP_CALLBACK_URL}}/bulkTransfers\"\n}"
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_BULK_TRANSFER_POST\",\n  \"value\": \"{{PM4MLPAYER_CALLBACK_URL}}/bulkTransfers\"\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlsenderfsp/endpoints",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlpayer/endpoints",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"pm4mlsenderfsp",
+												"pm4mlpayer",
 												"endpoints"
 											]
 										}
@@ -7766,7 +7766,7 @@
 									"response": []
 								},
 								{
-									"name": "Add pm4mlsenderfsp callback - BULK-TRANSFER PUT",
+									"name": "Add pm4mlpayer callback - BULK-TRANSFER PUT",
 									"event": [
 										{
 											"listen": "test",
@@ -7808,16 +7808,16 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_BULK_TRANSFER_PUT\",\n  \"value\": \"{{PM4MLSENDERFSP_CALLBACK_URL}}/bulkTransfers/{{id}}\"\n}"
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_BULK_TRANSFER_PUT\",\n  \"value\": \"{{PM4MLPAYER_CALLBACK_URL}}/bulkTransfers/{{id}}\"\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlsenderfsp/endpoints",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlpayer/endpoints",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"pm4mlsenderfsp",
+												"pm4mlpayer",
 												"endpoints"
 											]
 										}
@@ -7825,7 +7825,7 @@
 									"response": []
 								},
 								{
-									"name": "Add pm4mlsenderfsp callback - BULK-TRANSFER ERROR",
+									"name": "Add pm4mlpayer callback - BULK-TRANSFER ERROR",
 									"event": [
 										{
 											"listen": "test",
@@ -7867,16 +7867,16 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_BULK_TRANSFER_ERROR\",\n  \"value\": \"{{PM4MLSENDERFSP_CALLBACK_URL}}/bulkTransfers/{{id}}/error\"\n}"
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_BULK_TRANSFER_ERROR\",\n  \"value\": \"{{PM4MLPAYER_CALLBACK_URL}}/bulkTransfers/{{id}}/error\"\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlsenderfsp/endpoints",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlpayer/endpoints",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"pm4mlsenderfsp",
+												"pm4mlpayer",
 												"endpoints"
 											]
 										}
@@ -7915,22 +7915,22 @@
 											},
 											{
 												"key": "FSPIOP-Source",
-												"value": "pm4mlsenderfsp",
+												"value": "pm4mlpayer",
 												"type": "text"
 											}
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"type\": \"NET_DEBIT_CAP_THRESHOLD_BREACH_EMAIL\",\n  \"value\": \"{{PM4MLSENDERFSP_EMAIL}}\"\n}"
+											"raw": "{\n  \"type\": \"NET_DEBIT_CAP_THRESHOLD_BREACH_EMAIL\",\n  \"value\": \"{{PM4MLPAYER_EMAIL}}\"\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlsenderfsp/endpoints",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlpayer/endpoints",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"pm4mlsenderfsp",
+												"pm4mlpayer",
 												"endpoints"
 											]
 										},
@@ -8011,16 +8011,16 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"type\": \"NET_DEBIT_CAP_ADJUSTMENT_EMAIL\",\n  \"value\": \"{{PM4MLSENDERFSP_EMAIL}}\"\n}"
+											"raw": "{\n  \"type\": \"NET_DEBIT_CAP_ADJUSTMENT_EMAIL\",\n  \"value\": \"{{PM4MLPAYER_EMAIL}}\"\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlsenderfsp/endpoints",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlpayer/endpoints",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"pm4mlsenderfsp",
+												"pm4mlpayer",
 												"endpoints"
 											]
 										},
@@ -8095,22 +8095,22 @@
 											},
 											{
 												"key": "FSPIOP-Source",
-												"value": "pm4mlsenderfsp",
+												"value": "pm4mlpayer",
 												"type": "text"
 											}
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"type\": \"SETTLEMENT_TRANSFER_POSITION_CHANGE_EMAIL\",\n  \"value\": \"{{PM4MLSENDERFSP_EMAIL}}\"\n}"
+											"raw": "{\n  \"type\": \"SETTLEMENT_TRANSFER_POSITION_CHANGE_EMAIL\",\n  \"value\": \"{{PM4MLPAYER_EMAIL}}\"\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlsenderfsp/endpoints",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlpayer/endpoints",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"pm4mlsenderfsp",
+												"pm4mlpayer",
 												"endpoints"
 											]
 										},
@@ -8168,7 +8168,7 @@
 							"name": "oracle_registration",
 							"item": [
 								{
-									"name": "Add {{pm4mlsenderfspMSISDN}} in MSISDN Oracle",
+									"name": "Add {{pm4mlpayerMSISDN}} in MSISDN Oracle",
 									"request": {
 										"auth": {
 											"type": "bearer",
@@ -8221,17 +8221,17 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"fspId\": \"pm4mlsenderfsp\",\n    \"currency\": \"{{pm4mlcurrency}}\"\n}"
+											"raw": "{\n    \"fspId\": \"pm4mlpayer\",\n    \"currency\": \"{{pm4mlcurrency}}\"\n}"
 										},
 										"url": {
-											"raw": "{{MSISDN_ORACLE_ENDPOINT}}/participants/MSISDN/{{pm4mlsenderfspMSISDN}}",
+											"raw": "{{MSISDN_ORACLE_ENDPOINT}}/participants/MSISDN/{{pm4mlpayerMSISDN}}",
 											"host": [
 												"{{MSISDN_ORACLE_ENDPOINT}}"
 											],
 											"path": [
 												"participants",
 												"MSISDN",
-												"{{pm4mlsenderfspMSISDN}}"
+												"{{pm4mlpayerMSISDN}}"
 											]
 										}
 									},
@@ -8245,7 +8245,7 @@
 							"name": "add_users",
 							"item": [
 								{
-									"name": "Add {{pm4mlsenderfspMSISDN}} to pm4mlsenderfsp",
+									"name": "Add {{pm4mlpayerMSISDN}} to pm4mlpayer",
 									"event": [
 										{
 											"listen": "prerequest",
@@ -8287,19 +8287,19 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"displayName\": \"{{fullName}}\",\n    \"firstName\": \"{{firstName}}\",\n    \"middleName\": \"{{middleName}}\",\n    \"lastName\": \"{{lastName}}\",\n    \"dateOfBirth\": \"{{dob}}\",\n    \"idType\": \"MSISDN\",\n    \"idValue\": \"{{pm4mlsenderfspMSISDN}}\"\n}"
+											"raw": "{\n    \"displayName\": \"{{fullName}}\",\n    \"firstName\": \"{{firstName}}\",\n    \"middleName\": \"{{middleName}}\",\n    \"lastName\": \"{{lastName}}\",\n    \"dateOfBirth\": \"{{dob}}\",\n    \"idType\": \"MSISDN\",\n    \"idValue\": \"{{pm4mlpayerMSISDN}}\"\n}"
 										},
 										"url": {
-											"raw": "{{PM4MLSENDERFSP_BACKEND_TESTAPI_URL}}/repository/parties",
+											"raw": "{{PM4MLPAYER_BACKEND_TESTAPI_URL}}/repository/parties",
 											"host": [
-												"{{PM4MLSENDERFSP_BACKEND_TESTAPI_URL}}"
+												"{{PM4MLPAYER_BACKEND_TESTAPI_URL}}"
 											],
 											"path": [
 												"repository",
 												"parties"
 											]
 										},
-										"description": "Create a party in pm4mlreceiverfsp. So that GET /parties can be successful."
+										"description": "Create a party in pm4mlpayee. So that GET /parties can be successful."
 									},
 									"response": [
 										{
@@ -8423,13 +8423,13 @@
 											},
 											{
 												"key": "FSPIOP-Source",
-												"value": "{{pm4mlsenderfsp}}",
+												"value": "{{pm4mlpayer}}",
 												"type": "text"
 											}
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n \"fspId\": \"{{pm4mlsenderfsp}}\",\n \"currency\": \"XOF\"\n}\n"
+											"raw": "{\n \"fspId\": \"{{pm4mlpayer}}\",\n \"currency\": \"XOF\"\n}\n"
 										},
 										"url": {
 											"raw": "{{HOST_ACCOUNT_LOOKUP_SERVICE}}/participants/MSISDN/22365012345/100",
@@ -8455,13 +8455,13 @@
 					"_postman_isSubFolder": true
 				},
 				{
-					"name": "pm4mlreceiverfsp",
+					"name": "pm4mlpayee",
 					"item": [
 						{
 							"name": "accounts",
 							"item": [
 								{
-									"name": "Add pm4mlreceiverfsp",
+									"name": "Add pm4mlpayee",
 									"event": [
 										{
 											"listen": "test",
@@ -8503,7 +8503,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\"name\": \"pm4mlreceiverfsp\",\"currency\": \"{{pm4mlcurrency}}\"}"
+											"raw": "{\"name\": \"pm4mlpayee\",\"currency\": \"{{pm4mlcurrency}}\"}"
 										},
 										"url": {
 											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants",
@@ -8518,7 +8518,7 @@
 									"response": []
 								},
 								{
-									"name": "Add initial position and limits - pm4mlreceiverfsp",
+									"name": "Add initial position and limits - pm4mlpayee",
 									"event": [
 										{
 											"listen": "test",
@@ -8563,13 +8563,13 @@
 											"raw": "{\n\t\"currency\": \"{{pm4mlcurrency}}\",\n\t\"limit\": {\n\t  \"type\": \"NET_DEBIT_CAP\",\n\t  \"value\": 10000\n\t},\n\t\"initialPosition\": 0\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlreceiverfsp/initialPositionAndLimits",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlpayee/initialPositionAndLimits",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"pm4mlreceiverfsp",
+												"pm4mlpayee",
 												"initialPositionAndLimits"
 											]
 										}
@@ -8577,7 +8577,7 @@
 									"response": []
 								},
 								{
-									"name": "Deposit Funds - pm4mlreceiverfsp",
+									"name": "Deposit Funds - pm4mlpayee",
 									"event": [
 										{
 											"listen": "prerequest",
@@ -8591,7 +8591,7 @@
 													"",
 													"",
 													"const hubGetStatusRequest = {",
-													"  url: pm.environment.get(\"HOST_CENTRAL_LEDGER\")+pm.environment.get(\"BASE_CENTRAL_LEDGER_ADMIN\")+'/participants/pm4mlreceiverfsp/accounts',",
+													"  url: pm.environment.get(\"HOST_CENTRAL_LEDGER\")+pm.environment.get(\"BASE_CENTRAL_LEDGER_ADMIN\")+'/participants/pm4mlpayee/accounts',",
 													"  method: 'GET',",
 													"  header: {",
 													"      \"Authorization\":\"Bearer \"+pm.environment.get(\"HUB_OPERATOR_BEARER_TOKEN\"),",
@@ -8604,7 +8604,7 @@
 													"    var jsonData = response.json()",
 													"    for(var i in jsonData) {",
 													"        if(jsonData[i].ledgerAccountType === 'SETTLEMENT') {",
-													"            pm.environment.set(\"pm4mlreceiverfspSettlementAccountId\",jsonData[i].id)",
+													"            pm.environment.set(\"pm4mlpayeeSettlementAccountId\",jsonData[i].id)",
 													"        }",
 													"    }",
 													"});",
@@ -8624,8 +8624,8 @@
 													"});",
 													"",
 													"setTimeout(function () {",
-													"    const pm4mlreceiverfspGetStatusRequest = {",
-													"      url: pm.environment.get(\"HOST_CENTRAL_LEDGER\")+pm.environment.get(\"BASE_CENTRAL_LEDGER_ADMIN\")+'/participants/'+pm.environment.get(\"pm4mlreceiverfsp\")+'/accounts',",
+													"    const pm4mlpayeeGetStatusRequest = {",
+													"      url: pm.environment.get(\"HOST_CENTRAL_LEDGER\")+pm.environment.get(\"BASE_CENTRAL_LEDGER_ADMIN\")+'/participants/'+pm.environment.get(\"pm4mlpayee\")+'/accounts',",
 													"      method: 'GET',",
 													"      header: {",
 													"          \"Authorization\":\"Bearer \"+pm.environment.get(\"HUB_OPERATOR_BEARER_TOKEN\"),",
@@ -8633,18 +8633,18 @@
 													"          \"Content-Type\": \"application/json\"",
 													"      }",
 													"    };",
-													"    pm.sendRequest(pm4mlreceiverfspGetStatusRequest, function (err, response) {",
+													"    pm.sendRequest(pm4mlpayeeGetStatusRequest, function (err, response) {",
 													"        console.log(response.json())",
 													"        var jsonData = response.json()",
-													"        var pm4mlreceiverfspSettlementAccountBalanceAfterFundsIn",
+													"        var pm4mlpayeeSettlementAccountBalanceAfterFundsIn",
 													"        for(var i in jsonData) {",
 													"            if(jsonData[i].ledgerAccountType === 'SETTLEMENT') {",
-													"                pm4mlreceiverfspSettlementAccountBalanceAfterFundsIn = jsonData[i].value",
+													"                pm4mlpayeeSettlementAccountBalanceAfterFundsIn = jsonData[i].value",
 													"            }",
 													"        }",
-													"        var pm4mlreceiverfspExpectedBalance = pm.environment.get('pm4mlreceiverfspSettlementAccountBalanceBeforeFundsIn') + pm.environment.get('fundsInPrepareAmount')",
-													"        pm.test(\"Final pm4mlreceiverfsp Settlement Account Balance should be same as before FundsIn + fundsInPrepareAmount\", function () {",
-													"            pm.expect(pm4mlreceiverfspSettlementAccountBalanceAfterFundsIn).to.eql(pm4mlreceiverfspExpectedBalance);",
+													"        var pm4mlpayeeExpectedBalance = pm.environment.get('pm4mlpayeeSettlementAccountBalanceBeforeFundsIn') + pm.environment.get('fundsInPrepareAmount')",
+													"        pm.test(\"Final pm4mlpayee Settlement Account Balance should be same as before FundsIn + fundsInPrepareAmount\", function () {",
+													"            pm.expect(pm4mlpayeeSettlementAccountBalanceAfterFundsIn).to.eql(pm4mlpayeeExpectedBalance);",
 													"          });    ",
 													"    ",
 													"    });",
@@ -8707,15 +8707,15 @@
 											"raw": "{\n  \"transferId\": \"{{fundsInPrepareTransferId}}\",\n  \"externalReference\": \"string\",\n  \"action\": \"recordFundsIn\",\n  \"reason\": \"string\",\n  \"amount\": {\n    \"amount\": {{fundsInPrepareAmount}},\n    \"currency\": \"{{pm4mlcurrency}}\"\n  },\n  \"extensionList\": {\n    \"extension\": [\n      {\n        \"key\": \"string\",\n        \"value\": \"string\"\n      }\n    ]\n  }\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/{{pm4mlreceiverfsp}}/accounts/{{pm4mlreceiverfspSettlementAccountId}}",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/{{pm4mlpayee}}/accounts/{{pm4mlpayeeSettlementAccountId}}",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"{{pm4mlreceiverfsp}}",
+												"{{pm4mlpayee}}",
 												"accounts",
-												"{{pm4mlreceiverfspSettlementAccountId}}"
+												"{{pm4mlpayeeSettlementAccountId}}"
 											]
 										}
 									},
@@ -8730,7 +8730,7 @@
 							"name": "callbacks",
 							"item": [
 								{
-									"name": "Add pm4mlreceiverfsp callback - AUTHORIZATIONS",
+									"name": "Add pm4mlpayee callback - AUTHORIZATIONS",
 									"event": [
 										{
 											"listen": "test",
@@ -8767,16 +8767,16 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_AUTHORIZATIONS\",\n  \"value\": \"{{PM4MLRECEIVERFSP_CALLBACK_URL}}\"\n}"
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_AUTHORIZATIONS\",\n  \"value\": \"{{PM4MLPAYEE_CALLBACK_URL}}\"\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlreceiverfsp/endpoints",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlpayee/endpoints",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"pm4mlreceiverfsp",
+												"pm4mlpayee",
 												"endpoints"
 											]
 										}
@@ -8784,7 +8784,7 @@
 									"response": []
 								},
 								{
-									"name": "Add pm4mlreceiverfsp callback - PARTICIPANT PUT",
+									"name": "Add pm4mlpayee callback - PARTICIPANT PUT",
 									"event": [
 										{
 											"listen": "test",
@@ -8826,16 +8826,16 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTICIPANT_PUT\",\n  \"value\": \"{{PM4MLRECEIVERFSP_CALLBACK_URL}}/participants/{{partyIdType}}/{{partyIdentifier}}\"\n}"
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTICIPANT_PUT\",\n  \"value\": \"{{PM4MLPAYEE_CALLBACK_URL}}/participants/{{partyIdType}}/{{partyIdentifier}}\"\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlreceiverfsp/endpoints",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlpayee/endpoints",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"pm4mlreceiverfsp",
+												"pm4mlpayee",
 												"endpoints"
 											]
 										}
@@ -8843,7 +8843,7 @@
 									"response": []
 								},
 								{
-									"name": "Add pm4mlreceiverfsp callback - PARTICIPANT PUT Error",
+									"name": "Add pm4mlpayee callback - PARTICIPANT PUT Error",
 									"event": [
 										{
 											"listen": "test",
@@ -8880,16 +8880,16 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTICIPANT_PUT_ERROR\",\n  \"value\": \"{{PM4MLRECEIVERFSP_CALLBACK_URL}}/participants/{{partyIdType}}/{{partyIdentifier}}/error\"\n}"
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTICIPANT_PUT_ERROR\",\n  \"value\": \"{{PM4MLPAYEE_CALLBACK_URL}}/participants/{{partyIdType}}/{{partyIdentifier}}/error\"\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlreceiverfsp/endpoints",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlpayee/endpoints",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"pm4mlreceiverfsp",
+												"pm4mlpayee",
 												"endpoints"
 											]
 										}
@@ -8897,7 +8897,7 @@
 									"response": []
 								},
 								{
-									"name": "Add pm4mlreceiverfsp callback - PARTICIPANT PUT Batch",
+									"name": "Add pm4mlpayee callback - PARTICIPANT PUT Batch",
 									"event": [
 										{
 											"listen": "test",
@@ -8934,16 +8934,16 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTICIPANT_BATCH_PUT\",\n  \"value\": \"{{PM4MLRECEIVERFSP_CALLBACK_URL}}/participants/{{requestId}}\"\n}"
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTICIPANT_BATCH_PUT\",\n  \"value\": \"{{PM4MLPAYEE_CALLBACK_URL}}/participants/{{requestId}}\"\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlreceiverfsp/endpoints",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlpayee/endpoints",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"pm4mlreceiverfsp",
+												"pm4mlpayee",
 												"endpoints"
 											]
 										}
@@ -8951,7 +8951,7 @@
 									"response": []
 								},
 								{
-									"name": "Add pm4mlreceiverfsp callback - PARTICIPANT PUT Batch Error",
+									"name": "Add pm4mlpayee callback - PARTICIPANT PUT Batch Error",
 									"event": [
 										{
 											"listen": "test",
@@ -8988,16 +8988,16 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTICIPANT_BATCH_PUT_ERROR\",\n  \"value\": \"{{PM4MLRECEIVERFSP_CALLBACK_URL}}/participants/{{requestId}}/error\"\n}"
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTICIPANT_BATCH_PUT_ERROR\",\n  \"value\": \"{{PM4MLPAYEE_CALLBACK_URL}}/participants/{{requestId}}/error\"\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlreceiverfsp/endpoints",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlpayee/endpoints",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"pm4mlreceiverfsp",
+												"pm4mlpayee",
 												"endpoints"
 											]
 										}
@@ -9005,7 +9005,7 @@
 									"response": []
 								},
 								{
-									"name": "Add pm4mlreceiverfsp callback - PARTIES GET",
+									"name": "Add pm4mlpayee callback - PARTIES GET",
 									"event": [
 										{
 											"listen": "test",
@@ -9042,16 +9042,16 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTIES_GET\",\n  \"value\": \"{{PM4MLRECEIVERFSP_CALLBACK_URL}}/parties/{{partyIdType}}/{{partyIdentifier}}\"\n}"
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTIES_GET\",\n  \"value\": \"{{PM4MLPAYEE_CALLBACK_URL}}/parties/{{partyIdType}}/{{partyIdentifier}}\"\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlreceiverfsp/endpoints",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlpayee/endpoints",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"pm4mlreceiverfsp",
+												"pm4mlpayee",
 												"endpoints"
 											]
 										}
@@ -9059,7 +9059,7 @@
 									"response": []
 								},
 								{
-									"name": "Add pm4mlreceiverfsp callback - PARTIES PUT",
+									"name": "Add pm4mlpayee callback - PARTIES PUT",
 									"event": [
 										{
 											"listen": "test",
@@ -9096,16 +9096,16 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTIES_PUT\",\n  \"value\": \"{{PM4MLRECEIVERFSP_CALLBACK_URL}}/parties/{{partyIdType}}/{{partyIdentifier}}\"\n}"
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTIES_PUT\",\n  \"value\": \"{{PM4MLPAYEE_CALLBACK_URL}}/parties/{{partyIdType}}/{{partyIdentifier}}\"\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlreceiverfsp/endpoints",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlpayee/endpoints",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"pm4mlreceiverfsp",
+												"pm4mlpayee",
 												"endpoints"
 											]
 										}
@@ -9113,7 +9113,7 @@
 									"response": []
 								},
 								{
-									"name": "Add pm4mlreceiverfsp callback - PARTIES PUT Error",
+									"name": "Add pm4mlpayee callback - PARTIES PUT Error",
 									"event": [
 										{
 											"listen": "test",
@@ -9150,16 +9150,16 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTIES_PUT_ERROR\",\n  \"value\": \"{{PM4MLRECEIVERFSP_CALLBACK_URL}}/parties/{{partyIdType}}/{{partyIdentifier}}/error\"\n}"
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_PARTIES_PUT_ERROR\",\n  \"value\": \"{{PM4MLPAYEE_CALLBACK_URL}}/parties/{{partyIdType}}/{{partyIdentifier}}/error\"\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlreceiverfsp/endpoints",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlpayee/endpoints",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"pm4mlreceiverfsp",
+												"pm4mlpayee",
 												"endpoints"
 											]
 										}
@@ -9167,7 +9167,7 @@
 									"response": []
 								},
 								{
-									"name": "Add pm4mlreceiverfsp callback - QUOTES",
+									"name": "Add pm4mlpayee callback - QUOTES",
 									"event": [
 										{
 											"listen": "test",
@@ -9209,16 +9209,16 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_QUOTES\",\n  \"value\": \"{{PM4MLRECEIVERFSP_CALLBACK_URL}}\"\n}"
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_QUOTES\",\n  \"value\": \"{{PM4MLPAYEE_CALLBACK_URL}}\"\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlreceiverfsp/endpoints",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlpayee/endpoints",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"pm4mlreceiverfsp",
+												"pm4mlpayee",
 												"endpoints"
 											]
 										}
@@ -9226,7 +9226,7 @@
 									"response": []
 								},
 								{
-									"name": "Add pm4mlreceiverfsp callback - TXN REQUEST",
+									"name": "Add pm4mlpayee callback - TXN REQUEST",
 									"event": [
 										{
 											"listen": "test",
@@ -9268,16 +9268,16 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_TRX_REQ_SERVICE\",\n  \"value\": \"{{PM4MLRECEIVERFSP_CALLBACK_URL}}\"\n}"
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_TRX_REQ_SERVICE\",\n  \"value\": \"{{PM4MLPAYEE_CALLBACK_URL}}\"\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlreceiverfsp/endpoints",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlpayee/endpoints",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"pm4mlreceiverfsp",
+												"pm4mlpayee",
 												"endpoints"
 											]
 										}
@@ -9285,7 +9285,7 @@
 									"response": []
 								},
 								{
-									"name": "Add pm4mlreceiverfsp callback - TRANSFER POST",
+									"name": "Add pm4mlpayee callback - TRANSFER POST",
 									"event": [
 										{
 											"listen": "test",
@@ -9326,16 +9326,16 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_TRANSFER_POST\",\n  \"value\": \"{{PM4MLRECEIVERFSP_CALLBACK_URL}}/transfers\"\n}"
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_TRANSFER_POST\",\n  \"value\": \"{{PM4MLPAYEE_CALLBACK_URL}}/transfers\"\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlreceiverfsp/endpoints",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlpayee/endpoints",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"pm4mlreceiverfsp",
+												"pm4mlpayee",
 												"endpoints"
 											]
 										}
@@ -9343,7 +9343,7 @@
 									"response": []
 								},
 								{
-									"name": "Add pm4mlreceiverfsp callback - TRANSFER PUT",
+									"name": "Add pm4mlpayee callback - TRANSFER PUT",
 									"event": [
 										{
 											"listen": "test",
@@ -9379,21 +9379,21 @@
 											{
 												"key": "FSPIOP-Source",
 												"type": "text",
-												"value": "{{pm4mlsenderfsp}}"
+												"value": "{{pm4mlpayer}}"
 											}
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_TRANSFER_PUT\",\n  \"value\": \"{{PM4MLRECEIVERFSP_CALLBACK_URL}}/transfers/{{transferId}}\"\n}"
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_TRANSFER_PUT\",\n  \"value\": \"{{PM4MLPAYEE_CALLBACK_URL}}/transfers/{{transferId}}\"\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlreceiverfsp/endpoints",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlpayee/endpoints",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"pm4mlreceiverfsp",
+												"pm4mlpayee",
 												"endpoints"
 											]
 										}
@@ -9401,7 +9401,7 @@
 									"response": []
 								},
 								{
-									"name": "Add pm4mlreceiverfsp callback - TRANSFER ERROR",
+									"name": "Add pm4mlpayee callback - TRANSFER ERROR",
 									"event": [
 										{
 											"listen": "test",
@@ -9437,21 +9437,21 @@
 											{
 												"key": "FSPIOP-Source",
 												"type": "text",
-												"value": "pm4mlsenderfsp"
+												"value": "pm4mlpayer"
 											}
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_TRANSFER_ERROR\",\n  \"value\": \"{{PM4MLRECEIVERFSP_CALLBACK_URL}}/transfers/{{transferId}}/error\"\n}"
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_TRANSFER_ERROR\",\n  \"value\": \"{{PM4MLPAYEE_CALLBACK_URL}}/transfers/{{transferId}}/error\"\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlreceiverfsp/endpoints",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlpayee/endpoints",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"pm4mlreceiverfsp",
+												"pm4mlpayee",
 												"endpoints"
 											]
 										}
@@ -9459,7 +9459,7 @@
 									"response": []
 								},
 								{
-									"name": "Add pm4mlreceiverfsp callback - BULK-TRANSFER POST",
+									"name": "Add pm4mlpayee callback - BULK-TRANSFER POST",
 									"event": [
 										{
 											"listen": "test",
@@ -9500,16 +9500,16 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_BULK_TRANSFER_POST\",\n  \"value\": \"{{PM4MLRECEIVERFSP_CALLBACK_URL}}/bulkTransfers\"\n}"
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_BULK_TRANSFER_POST\",\n  \"value\": \"{{PM4MLPAYEE_CALLBACK_URL}}/bulkTransfers\"\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlreceiverfsp/endpoints",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlpayee/endpoints",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"pm4mlreceiverfsp",
+												"pm4mlpayee",
 												"endpoints"
 											]
 										}
@@ -9517,7 +9517,7 @@
 									"response": []
 								},
 								{
-									"name": "Add pm4mlreceiverfsp callback - BULK-TRANSFER PUT",
+									"name": "Add pm4mlpayee callback - BULK-TRANSFER PUT",
 									"event": [
 										{
 											"listen": "test",
@@ -9552,22 +9552,22 @@
 											},
 											{
 												"key": "FSPIOP-Source",
-												"value": "{{pm4mlsenderfsp}}",
+												"value": "{{pm4mlpayer}}",
 												"type": "text"
 											}
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_BULK_TRANSFER_PUT\",\n  \"value\": \"{{PM4MLRECEIVERFSP_CALLBACK_URL}}/bulkTransfers/{{id}}\"\n}"
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_BULK_TRANSFER_PUT\",\n  \"value\": \"{{PM4MLPAYEE_CALLBACK_URL}}/bulkTransfers/{{id}}\"\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlreceiverfsp/endpoints",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlpayee/endpoints",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"pm4mlreceiverfsp",
+												"pm4mlpayee",
 												"endpoints"
 											]
 										}
@@ -9575,7 +9575,7 @@
 									"response": []
 								},
 								{
-									"name": "Add pm4mlreceiverfsp callback - BULK-TRANSFER ERROR",
+									"name": "Add pm4mlpayee callback - BULK-TRANSFER ERROR",
 									"event": [
 										{
 											"listen": "test",
@@ -9610,22 +9610,22 @@
 											},
 											{
 												"key": "FSPIOP-Source",
-												"value": "pm4mlsenderfsp",
+												"value": "pm4mlpayer",
 												"type": "text"
 											}
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_BULK_TRANSFER_ERROR\",\n  \"value\": \"{{PM4MLRECEIVERFSP_CALLBACK_URL}}/bulkTransfers/{{id}}/error\"\n}"
+											"raw": "{\n  \"type\": \"FSPIOP_CALLBACK_URL_BULK_TRANSFER_ERROR\",\n  \"value\": \"{{PM4MLPAYEE_CALLBACK_URL}}/bulkTransfers/{{id}}/error\"\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlreceiverfsp/endpoints",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlpayee/endpoints",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"pm4mlreceiverfsp",
+												"pm4mlpayee",
 												"endpoints"
 											]
 										}
@@ -9670,16 +9670,16 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"type\": \"NET_DEBIT_CAP_THRESHOLD_BREACH_EMAIL\",\n  \"value\": \"{{PM4MLRECEIVERFSP_EMAIL}}\"\n}"
+											"raw": "{\n  \"type\": \"NET_DEBIT_CAP_THRESHOLD_BREACH_EMAIL\",\n  \"value\": \"{{PM4MLPAYEE_EMAIL}}\"\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlreceiverfsp/endpoints",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlpayee/endpoints",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"pm4mlreceiverfsp",
+												"pm4mlpayee",
 												"endpoints"
 											]
 										},
@@ -9760,16 +9760,16 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"type\": \"NET_DEBIT_CAP_ADJUSTMENT_EMAIL\",\n  \"value\": \"{{PM4MLRECEIVERFSP_EMAIL}}\"\n}"
+											"raw": "{\n  \"type\": \"NET_DEBIT_CAP_ADJUSTMENT_EMAIL\",\n  \"value\": \"{{PM4MLPAYEE_EMAIL}}\"\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlreceiverfsp/endpoints",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlpayee/endpoints",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"pm4mlreceiverfsp",
+												"pm4mlpayee",
 												"endpoints"
 											]
 										},
@@ -9850,16 +9850,16 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"type\": \"SETTLEMENT_TRANSFER_POSITION_CHANGE_EMAIL\",\n  \"value\": \"{{PM4MLRECEIVERFSP_EMAIL}}\"\n}"
+											"raw": "{\n  \"type\": \"SETTLEMENT_TRANSFER_POSITION_CHANGE_EMAIL\",\n  \"value\": \"{{PM4MLPAYEE_EMAIL}}\"\n}"
 										},
 										"url": {
-											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlreceiverfsp/endpoints",
+											"raw": "{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}/participants/pm4mlpayee/endpoints",
 											"host": [
 												"{{HOST_CENTRAL_LEDGER}}{{BASE_CENTRAL_LEDGER_ADMIN}}"
 											],
 											"path": [
 												"participants",
-												"pm4mlreceiverfsp",
+												"pm4mlpayee",
 												"endpoints"
 											]
 										},
@@ -9917,7 +9917,7 @@
 							"name": "oracle_registration",
 							"item": [
 								{
-									"name": "Add {{pm4mlreceiverfspMSISDN}} in MSISDN Oracle",
+									"name": "Add {{pm4mlpayeeMSISDN}} in MSISDN Oracle",
 									"request": {
 										"auth": {
 											"type": "bearer",
@@ -9970,17 +9970,17 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"fspId\": \"pm4mlreceiverfsp\",\n    \"currency\": \"{{pm4mlcurrency}}\"\n}"
+											"raw": "{\n    \"fspId\": \"pm4mlpayee\",\n    \"currency\": \"{{pm4mlcurrency}}\"\n}"
 										},
 										"url": {
-											"raw": "{{MSISDN_ORACLE_ENDPOINT}}/participants/MSISDN/{{pm4mlreceiverfspMSISDN}}",
+											"raw": "{{MSISDN_ORACLE_ENDPOINT}}/participants/MSISDN/{{pm4mlpayeeMSISDN}}",
 											"host": [
 												"{{MSISDN_ORACLE_ENDPOINT}}"
 											],
 											"path": [
 												"participants",
 												"MSISDN",
-												"{{pm4mlreceiverfspMSISDN}}"
+												"{{pm4mlpayeeMSISDN}}"
 											]
 										}
 									},
@@ -9994,7 +9994,7 @@
 							"name": "add_users",
 							"item": [
 								{
-									"name": "Add {{pm4mlreceiverfspMSISDN}} to pm4mlreceiverfsp",
+									"name": "Add {{pm4mlpayeeMSISDN}} to pm4mlpayee",
 									"event": [
 										{
 											"listen": "prerequest",
@@ -10036,19 +10036,19 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"displayName\": \"{{fullName}}\",\n    \"firstName\": \"{{firstName}}\",\n    \"middleName\": \"{{middleName}}\",\n    \"lastName\": \"{{lastName}}\",\n    \"dateOfBirth\": \"{{dob}}\",\n    \"idType\": \"MSISDN\",\n    \"idValue\": \"{{pm4mlreceiverfspMSISDN}}\"\n}"
+											"raw": "{\n    \"displayName\": \"{{fullName}}\",\n    \"firstName\": \"{{firstName}}\",\n    \"middleName\": \"{{middleName}}\",\n    \"lastName\": \"{{lastName}}\",\n    \"dateOfBirth\": \"{{dob}}\",\n    \"idType\": \"MSISDN\",\n    \"idValue\": \"{{pm4mlpayeeMSISDN}}\"\n}"
 										},
 										"url": {
-											"raw": "{{PM4MLRECEIVERFSP_BACKEND_TESTAPI_URL}}/repository/parties",
+											"raw": "{{PM4MLPAYEE_BACKEND_TESTAPI_URL}}/repository/parties",
 											"host": [
-												"{{PM4MLRECEIVERFSP_BACKEND_TESTAPI_URL}}"
+												"{{PM4MLPAYEE_BACKEND_TESTAPI_URL}}"
 											],
 											"path": [
 												"repository",
 												"parties"
 											]
 										},
-										"description": "Create a party in pm4mlreceiverfsp. So that GET /parties can be successful."
+										"description": "Create a party in pm4mlpayee. So that GET /parties can be successful."
 									},
 									"response": [
 										{
@@ -10150,7 +10150,7 @@
 											},
 											{
 												"key": "FSPIOP-Source",
-												"value": "pm4mlreceiverfsp"
+												"value": "pm4mlpayee"
 											},
 											{
 												"key": "Postman-Token",
@@ -10171,7 +10171,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"fspId\": \"pm4mlreceiverfsp\",\n    \"currency\": \"{{pm4mlcurrency}}\"\n}"
+											"raw": "{\n    \"fspId\": \"pm4mlpayee\",\n    \"currency\": \"{{pm4mlcurrency}}\"\n}"
 										},
 										"url": {
 											"raw": "{{MERCHANT_ORACLE_ENDPOINT}}/participants/BUSINESS/{{merchantId}}",
@@ -10210,7 +10210,7 @@
 											},
 											{
 												"key": "FSPIOP-Source",
-												"value": "pm4mlreceiverfsp"
+												"value": "pm4mlpayee"
 											},
 											{
 												"key": "Postman-Token",
@@ -10231,7 +10231,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"fspId\": \"pm4mlreceiverfsp\",\n    \"currency\": \"{{pm4mlcurrency}}\"\n}"
+											"raw": "{\n    \"fspId\": \"pm4mlpayee\",\n    \"currency\": \"{{pm4mlcurrency}}\"\n}"
 										},
 										"url": {
 											"raw": "{{ALIAS_ORACLE_ENDPOINT}}/participants/ALIAS/{{aliasID}}",
@@ -10292,13 +10292,13 @@
 											},
 											{
 												"key": "FSPIOP-Source",
-												"value": "{{pm4mlreceiverfsp}}",
+												"value": "{{pm4mlpayee}}",
 												"type": "text"
 											}
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n \"fspId\": \"{{pm4mlreceiverfsp}}\",\n \"currency\": \"XOF\"\n}\n"
+											"raw": "{\n \"fspId\": \"{{pm4mlpayee}}\",\n \"currency\": \"XOF\"\n}\n"
 										},
 										"url": {
 											"raw": "{{HOST_ACCOUNT_LOOKUP_SERVICE}}/participants/MSISDN/22365012346/200",
